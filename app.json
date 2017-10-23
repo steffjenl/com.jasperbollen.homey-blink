@@ -1,0 +1,227 @@
+{
+  "$schema": "https://raw.githubusercontent.com/tmsns/homey-json-schema/master/schema.json",
+  "id": "com.blink.app",
+  "sdk": 2,
+  "name": {
+    "en": "Blink Camera's",
+    "nl": "Blink Camera's"
+  },
+  "description": {
+    "en": "Blink",
+    "nl": "Blink"
+  },
+  "category": "security",
+  "version": "0.0.1",
+  "compatibility": "1.5",
+  "author": {
+    "name": "Jasper Bollen",
+    "email": "jasperbollen@gmail.com"
+  },
+  "capabilities": {
+    "wifi_signal": {
+      "type": "string",
+      "title": {
+        "en": "Wifi Signal",
+        "nl": "Wifi Signaal"
+      },
+      "getable": true,
+      "setable": false
+    },
+    "clip_length": {
+      "type": "number",
+      "title": {
+        "en": "Clip length",
+        "nl": "Clip lengte"
+      },
+      "getable": true,
+      "setable": false
+    },
+    "last_vid": {
+      "type": "number",
+      "title": {
+        "en": "Last video date",
+        "nl": "Laatste video datum"
+      },
+      "getable": true,
+      "setable": false
+    },
+    "battery_state": {
+      "type": "string",
+      "title": {
+        "en": "Battery state",
+        "nl": "Batterij status"
+      },
+      "getable": true,
+      "setable": false
+    }
+  },
+  "drivers": [
+    {
+      "id": "BlinkIndoorCamera",
+      "class": "sensor",
+      "capabilities": [ "onoff", "wifi_signal", "battery_state", "clip_length", "last_vid", "measure_temperature" ],
+      "name": {
+        "en": "Blink indoor camera",
+        "nl": "Blink indoor camera"
+      },
+      "mobile": {
+        "components": [
+          {
+            "id": "icon",
+            "capabilities": [ "onoff" ]
+          },
+          {
+            "id": "sensor",
+            "capabilities": [ "measure_temperature", "wifi_signal", "battery_state", "clip_length" ],
+            "options": {
+              "icons": {
+                "wifi_signal": "/drivers/BlinkIndoorCamera/assets/images/wifi_signal.svg",
+                "battery_state": "/drivers/BlinkIndoorCamera/assets/images/battery_state.svg",
+                "clip_length": "/drivers/BlinkIndoorCamera/assets/images/clip_length.svg"
+              }
+            }
+          }
+
+        ]
+      },
+      "images": {
+        "large": "/drivers/my_driver/assets/images/large.png",
+        "small": "/drivers/my_driver/assets/images/small.png"
+      },
+      "pair": [
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": { "next": "add_devices" }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ]
+    }
+  ],
+  "flow": {
+    "triggers": [
+      {
+        "id": "motion_trigger",
+        "title": {
+          "en": "Motion detected",
+          "nl": "Beweging gedetecteerd"
+        },
+        "args": [
+          {
+            "name": "IndoorCamera",
+            "type": "device",
+            "filter": "driver_id=BlinkIndoorCamera"
+          }
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "turn_on",
+        "title": {
+          "en": "Enable motion",
+          "nl": "Bewegingsdetectie aanzetten"
+        },
+        "args": [
+          {
+            "name": "IndoorCamera_on",
+            "type": "device",
+            "filter": "driver_id=BlinkIndoorCamera"
+          }
+        ]
+      },
+      {
+        "id": "turn_off",
+        "title": {
+          "en": "Disable motion",
+          "nl": "Bewegingsdetectie uitzetten"
+        },
+        "args": [
+          {
+            "name": "IndoorCamera_off",
+            "type": "device",
+            "filter": "driver_id=BlinkIndoorCamera"
+          }
+        ]
+      },
+      {
+        "id": "arm_network",
+        "title": {
+          "en": "Arm network",
+          "nl": "Arm netwerk"
+        },
+        "args": [
+          {
+            "name": "IndoorCamera_arm",
+            "type": "device",
+            "filter": "driver_id=BlinkIndoorCamera"
+          }
+        ]
+      },
+      {
+        "id": "disarm_network",
+        "title": {
+          "en": "Disarm network",
+          "nl": "Disarm netwerk"
+        },
+        "args": [
+          {
+            "name": "IndoorCamera_disarm",
+            "type": "device",
+            "filter": "driver_id=BlinkIndoorCamera"
+          }
+        ]
+      },
+      {
+        "id": "change_settings",
+        "title": {
+          "en": "Change camera settings",
+          "nl": "Verander camera instelling"
+        },
+        "args": [
+          {
+            "name": "IndoorCamera_setting",
+            "type": "device",
+            "filter": "driver_id=BlinkIndoorCamera"
+          },
+          {
+            "name": "setting",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "video_length",
+                "label": {
+                  "en": "Video length",
+                  "nl": "Video lengte"
+                }
+              },
+              {
+                "id": "alert_interval",
+                "label": {
+                  "en": "Interval",
+                  "nl": "Interval"
+                }
+              },
+              {
+                "id": "motion_sensitivity",
+                "label": {
+                  "en": "Motion sensitivity",
+                  "nl": "Gevoeligheid"
+                }
+              }
+            ]
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "min": 1
+
+          }
+        ]
+      }
+    ]
+  }
+  }
