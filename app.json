@@ -12,7 +12,7 @@
   },
   "category": "security",
   "version": "0.0.1",
-  "compatibility": "1.5",
+  "compatibility": ">=1.5.0",
   "author": {
     "name": "Jasper Bollen",
     "email": "jasperbollen@gmail.com"
