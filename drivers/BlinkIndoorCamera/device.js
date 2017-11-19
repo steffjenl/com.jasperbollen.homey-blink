@@ -6,7 +6,7 @@ const Homey = require('homey');
 class BlinkCamera extends Homey.Device {
     async onInit() {
         //this.log('Device initiated');
-        
+
         this.registerCapabilityListener('onoff', this.onCapabilityOnoff.bind(this));
 
         let EnableCam = new Homey.FlowCardAction('turn_on');
@@ -29,13 +29,14 @@ class BlinkCamera extends Homey.Device {
                 return true;
 
             })
-        
-        this.updateDevice();
-        this.start_update_loop();
-        
-        this.CheckMotion_settings();
-        this.start_motion_loop();
-        
+
+        //this.updateDevice();
+        //this.startMotionTrigger();
+        //this.start_update_loop();
+
+        //this.CheckMotion_settings();
+        //this.start_motion_loop();
+
 
     }
 
@@ -49,28 +50,29 @@ class BlinkCamera extends Homey.Device {
 
     startMotionTrigger() {
         let MotionDetectedTrigger = new Homey.FlowCardTriggerDevice('motion_trigger');
-
+        console.log(this);
         let device = this;
         let tokens = {};
         let state = {};
-
         MotionDetectedTrigger
             .register()
             .trigger(device, tokens, state)
             .catch(this.error)
             .then(this.log)
 
-        console.log('trigger started');
+        this.log('trigger started');
     }
 
     onCapabilityOnoff(value, opts, callback) {
         //if value = true, it's on.. else off'
         if (value) {
+            this.log('Motion Enabled');
             this.setCapabilityValue("onoff", true);
             Homey.app.EnableMotion(this.getData().id);
             //Homey.app.Arm();
         }
         else {
+            this.log('Motion Disabled');
             this.setCapabilityValue("onoff", false);
             Homey.app.DisableMotion(this.getData().id);
             //Homey.app.Disarm();
@@ -86,13 +88,7 @@ class BlinkCamera extends Homey.Device {
         }, 300000); //5 min
     }
 
-    start_motion_loop() {
-        setInterval(() => {
-            this.CheckMotion_settings();
-        }, 5000); //5 sec
-    }
 
- 
 
     async updateDevice() {
         let Camerainfo = await Homey.app.GetCamera(this.getData().id);
@@ -148,11 +144,11 @@ class BlinkCamera extends Homey.Device {
             //store new date in capability
             this.setCapabilityValue("last_vid", last_vid);
         }
-        
+
 
     }
 
-    
+
 }
 
 module.exports = BlinkCamera;

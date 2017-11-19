@@ -5,15 +5,37 @@ const request = require('request');
 const Promise = require('promise');
 
 class BlinkApp extends Homey.App {
-    
+
 
         async onInit() {
             this.log('App is running...');
-            this.CheckMotion();
-            this.MotionLoop();
+            //this.CheckMotion();
+            //this.MotionLoop();
+
+              let ArmNetwork = new Homey.FlowCardAction('arm_network');
+              ArmNetwork
+                .register()
+                .registerRunListener((args, state) => {
+                  const drivervar = Homey.ManagerDrivers.getDriver('BlinkIndoorCamera');
+                  console.log(drivervar);
+
+                    //this.Arm();
+                    return true;
+
+                })
+
+                let DisArmNetwork = new Homey.FlowCardAction('disarm_network');
+                DisArmNetwork
+                    .register()
+                    .registerRunListener((args, state) => {
+
+                        this.Disarm();
+                        return true;
+
+                    })
         }
 
-         
+
         //Login
         GetToken(username, password) {
             return new Promise(function (fulfill, reject) {
@@ -21,11 +43,12 @@ class BlinkApp extends Homey.App {
                     "Host": "prod.immedia-semi.com",
                     "Content-Type": "application/json"
                 };
-
+                let username = 'test';
+                let password = 'test#';
                 var loginBody = "{ \"password\" : \"" + password + "\", \"client_specifier\" : \"iPhone 9.2 | 2.2 | 222\", \"email\" : \"" + username + "\" }";
 
                 var options = {
-                    url: "https://prod.immedia-semi.com/login",
+                    url: "https://rest.prod.immedia-semi.com/login",
                     method: "POST",
                     headers: headers,
                     body: loginBody
@@ -40,7 +63,7 @@ class BlinkApp extends Homey.App {
                         var jsonData = JSON.parse(body);
                         var authtoken = jsonData.authtoken.authtoken;
                         if (authtoken == null || authtoken == "") { reject("Token not in response: " + body); }
-                        else { fulfill(authtoken); }
+                        else { fulfill(authtoken);}
                     }
                 });
             });
@@ -58,7 +81,7 @@ class BlinkApp extends Homey.App {
                 };
 
                 var options = {
-                    url: "https://prde.immedia-semi.com/networks",
+                    url: "https://rest.prde.immedia-semi.com/networks",
                     headers: headers
                 };
 
@@ -71,7 +94,7 @@ class BlinkApp extends Homey.App {
                         var NetworkData = JSON.parse(body);
                         var NetworkID = NetworkData.networks[0];
                         if (NetworkData == null) { reject("Error during deserialization: " + body); }
-                        else { fulfill(NetworkID); }
+                        else { fulfill(NetworkID); console.log(NetworkID)}
                     }
                 });
             });
@@ -89,7 +112,7 @@ class BlinkApp extends Homey.App {
                 };
 
                 var options = {
-                    url: "https://prde.immedia-semi.com/homescreen",
+                    url: "https://rest.prde.immedia-semi.com/homescreen",
                     headers: headers
                 };
 
@@ -118,7 +141,7 @@ class BlinkApp extends Homey.App {
                 };
 
                 var options = {
-                    url: "https://prde.immedia-semi.com/api/v2/videos/page/0",
+                    url: "https://rest.prde.immedia-semi.com/api/v2/videos/page/0",
                     method: "GET",
                     headers: headers
                 };
@@ -153,7 +176,7 @@ class BlinkApp extends Homey.App {
                 };
 
                 var options = {
-                    url: "https://prde.immedia-semi.com/events/network/" + networkID,
+                    url: "https://rest.prde.immedia-semi.com/events/network/" + networkID,
                     method: "GET",
                     headers: headers
                 };
@@ -173,7 +196,7 @@ class BlinkApp extends Homey.App {
 
         //Get Camera's
         async GetCameras() {
-            
+
             var authtoken = await this.GetToken("username", "password");
             var networkID = await this.GetNetworks();
             var networkID = networkID.id;
@@ -185,7 +208,7 @@ class BlinkApp extends Homey.App {
                 };
 
                 var options = {
-                    url: "https://prde.immedia-semi.com/network/" + networkID + "/cameras",
+                    url: "https://rest.prde.immedia-semi.com/network/" + networkID + "/cameras",
                     method: "GET",
                     headers: headers
                 };
@@ -232,7 +255,7 @@ class BlinkApp extends Homey.App {
                 };
 
                 var options = {
-                    url: "https://prde.immedia-semi.com/network/" + networkID + "/cameras",
+                    url: "https://rest.prde.immedia-semi.com/network/" + networkID + "/cameras",
                     method: "GET",
                     headers: headers
                 };
@@ -284,7 +307,7 @@ class BlinkApp extends Homey.App {
                     } else {
                         var DisarmResponse = JSON.parse(body);
                         if (DisarmResponse == null) { reject("Error during deserialization: " + body); }
-                        else { fulfill(); console.log(DisarmResponse); }
+                        else { fulfill(); }
                     }
                 });
             });
@@ -316,7 +339,7 @@ class BlinkApp extends Homey.App {
                     } else {
                         var DisarmResponse = JSON.parse(body);
                         if (DisarmResponse == null) { reject("Error during deserialization: " + body); }
-                        else { fulfill(); console.log(DisarmResponse); }
+                        else { fulfill(); }
                     }
                 });
             });
@@ -342,12 +365,14 @@ class BlinkApp extends Homey.App {
                 request(options, function (err, res, body) {
                     if (err) {
                         reject("Request Error: " + err);
+                        //console.log(err);
                     } else if (res.statusCode !== 200) {
-                        reject("API Response not valid: " + body);
+                        console.log(body);
+                        //reject("API Response not valid: " + body);
                     } else {
                         var DisarmResponse = JSON.parse(body);
                         if (DisarmResponse == null) { reject("Error during deserialization: " + body); }
-                        else { fulfill(); console.log(DisarmResponse); }
+                        else { fulfill(); }
                     }
                 });
             });
@@ -378,7 +403,7 @@ class BlinkApp extends Homey.App {
                     } else {
                         var ArmResponse = JSON.parse(body);
                         if (ArmResponse == null) { reject("Error during deserialization: " + body); }
-                        else { fulfill(); console.log(ArmResponse); }
+                        else { fulfill();}
                     }
                 });
             });
@@ -394,7 +419,7 @@ class BlinkApp extends Homey.App {
             if (typeof vid !== "undefined") {
                 Homey.ManagerSettings.set('Latest_vid_DateTime', Date.parse(vid.updated_at));
                 Homey.ManagerSettings.set('Latest_vid_Cam', vid.camera_id);
-            }      
+            }
             //console.log(Homey.ManagerSettings.get('Latest_vid_DateTime'));
             //console.log(Homey.ManagerSettings.get('Latest_vid_Cam'));
         }
@@ -441,9 +466,9 @@ class BlinkApp extends Homey.App {
         MotionLoop() {
             setInterval(() => {
                 this.CheckMotion();
-            }, 1000); 
+            }, 1000);
         }
-     
+
 }
 
 module.exports = BlinkApp;
