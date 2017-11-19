@@ -9,17 +9,15 @@ class BlinkApp extends Homey.App {
 
         async onInit() {
             this.log('App is running...');
-            //this.CheckMotion();
+            this.CheckMotion();
             //this.MotionLoop();
 
               let ArmNetwork = new Homey.FlowCardAction('arm_network');
               ArmNetwork
                 .register()
                 .registerRunListener((args, state) => {
-                  const drivervar = Homey.ManagerDrivers.getDriver('BlinkIndoorCamera');
-                  console.log(drivervar);
 
-                    //this.Arm();
+                    this.Arm();
                     return true;
 
                 })
@@ -420,6 +418,11 @@ class BlinkApp extends Homey.App {
                 Homey.ManagerSettings.set('Latest_vid_DateTime', Date.parse(vid.updated_at));
                 Homey.ManagerSettings.set('Latest_vid_Cam', vid.camera_id);
             }
+            //trigger camera FlowCardTriggerDevice
+            let cameraID = vid.camera_id;
+
+            const drivervar = Homey.ManagerDrivers.getDriver('BlinkIndoorCamera');
+            console.log(drivervar);
             //console.log(Homey.ManagerSettings.get('Latest_vid_DateTime'));
             //console.log(Homey.ManagerSettings.get('Latest_vid_Cam'));
         }
