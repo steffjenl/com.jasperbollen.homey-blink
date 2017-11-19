@@ -16,6 +16,7 @@ class BlinkApp extends Homey.App {
               ArmNetwork
                 .register()
                 .registerRunListener((args, state) => {
+                  //trigger camera FlowCardTriggerDevice
 
                     this.Arm();
                     return true;
@@ -41,8 +42,8 @@ class BlinkApp extends Homey.App {
                     "Host": "prod.immedia-semi.com",
                     "Content-Type": "application/json"
                 };
-                let username = 'test';
-                let password = 'test#';
+                let username = 'jasperbollen@gmail.com';
+                let password = 'E3dft7cu#';
                 var loginBody = "{ \"password\" : \"" + password + "\", \"client_specifier\" : \"iPhone 9.2 | 2.2 | 222\", \"email\" : \"" + username + "\" }";
 
                 var options = {
@@ -409,22 +410,22 @@ class BlinkApp extends Homey.App {
 
         //Update settings for motion detection
         async CheckMotion() {
-
             //Get Last Motion
             let vid = await this.LatestVideo();
 
             //Save motion info
             if (typeof vid !== "undefined") {
-                Homey.ManagerSettings.set('Latest_vid_DateTime', Date.parse(vid.updated_at));
-                Homey.ManagerSettings.set('Latest_vid_Cam', vid.camera_id);
-            }
-            //trigger camera FlowCardTriggerDevice
-            let cameraID = vid.camera_id;
+                let EventDate =  Date.parse(vid.updated_at);
+                let EventID = vid.camera_id;
 
-            const drivervar = Homey.ManagerDrivers.getDriver('BlinkIndoorCamera');
-            console.log(drivervar);
-            //console.log(Homey.ManagerSettings.get('Latest_vid_DateTime'));
-            //console.log(Homey.ManagerSettings.get('Latest_vid_Cam'));
+                Homey.ManagerDrivers.getDriver('BlinkIndoorCamera').ParseTriggerData(EventID,EventDate);
+            }
+            else{
+                let EventDate =  Date.parse("01-01-1900");
+                let EventID = "00000";
+
+                Homey.ManagerDrivers.getDriver('BlinkIndoorCamera').ParseTriggerData(EventID,EventDate);
+            }
         }
 
         //Change camera setting

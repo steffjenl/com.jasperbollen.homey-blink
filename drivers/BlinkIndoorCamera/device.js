@@ -8,7 +8,9 @@ class BlinkCamera extends Homey.Device {
         //this.log('Device initiated');
 
         this.registerCapabilityListener('onoff', this.onCapabilityOnoff.bind(this));
-
+        let today = new Date()
+        today = Date.parse(today);
+        this.setCapabilityValue("last_vid", today);
         let EnableCam = new Homey.FlowCardAction('turn_on');
         EnableCam
             .register()
@@ -31,12 +33,7 @@ class BlinkCamera extends Homey.Device {
             })
 
         //this.updateDevice();
-        //this.startMotionTrigger();
         //this.start_update_loop();
-
-        //this.CheckMotion_settings();
-        //this.start_motion_loop();
-
 
     }
 
@@ -146,6 +143,10 @@ class BlinkCamera extends Homey.Device {
         }
 
 
+    }
+
+    TestMotion(){
+      console.log("test");
     }
 
 
