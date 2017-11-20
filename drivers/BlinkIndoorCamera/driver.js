@@ -12,12 +12,11 @@ class BlinkDriver extends Homey.Driver {
         callback(null, devices);
     }
 
-    ParseTriggerData(DeviceID, DateString){
-      console.log("DriverParse: " + DeviceID + " & " + DateString);
+    ParseTriggerData(DeviceIDp, DateString){
+      console.log("DriverParse: " + DeviceIDp + " & " + DateString);
 
-      const device = this.getDevice({ id: DeviceID });
+      const device = this.getDevice({ id: DeviceIDp });
 			if (Object.prototype.hasOwnProperty.call(device, '__ready')) {
-				// this.log(circleEnergy);
         device.TestMotion();
 			}
     }

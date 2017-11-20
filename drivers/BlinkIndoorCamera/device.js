@@ -6,17 +6,20 @@ const Homey = require('homey');
 class BlinkCamera extends Homey.Device {
     async onInit() {
         //this.log('Device initiated');
+        console.log(this.getData().id);
 
         this.registerCapabilityListener('onoff', this.onCapabilityOnoff.bind(this));
         let today = new Date()
         today = Date.parse(today);
         this.setCapabilityValue("last_vid", today);
+
         let EnableCam = new Homey.FlowCardAction('turn_on');
         EnableCam
             .register()
             .registerRunListener((args, state) => {
                 this.setCapabilityValue("onoff", true);
-                Homey.app.EnableMotion(this.getData().id);
+                //Homey.app.EnableMotion(this.getData().id);
+                console.log(this.getData().id);
                 return true;
 
             })
@@ -27,7 +30,19 @@ class BlinkCamera extends Homey.Device {
             .register()
             .registerRunListener((args, state) => {
                 this.setCapabilityValue("onoff", false);
-                Homey.app.DisableMotion(this.getData().id);
+                //Homey.app.DisableMotion(this.getData().id);
+                console.log(this.getData().id);
+                return true;
+
+            })
+
+        let Capturevid = new Homey.FlowCardAction('Capture_video');
+        Capturevid
+            .register()
+            .registerRunListener((args, state) => {
+                this.setCapabilityValue("onoff", false);
+                //Homey.app.Capture_vid(this.getData().id);
+                console.log(this.getData().id);
                 return true;
 
             })
@@ -47,7 +62,6 @@ class BlinkCamera extends Homey.Device {
 
     startMotionTrigger() {
         let MotionDetectedTrigger = new Homey.FlowCardTriggerDevice('motion_trigger');
-        console.log(this);
         let device = this;
         let tokens = {};
         let state = {};
@@ -67,8 +81,7 @@ class BlinkCamera extends Homey.Device {
             this.setCapabilityValue("onoff", true);
             Homey.app.EnableMotion(this.getData().id);
             //Homey.app.Arm();
-        }
-        else {
+        } else {
             this.log('Motion Disabled');
             this.setCapabilityValue("onoff", false);
             Homey.app.DisableMotion(this.getData().id);
@@ -99,11 +112,17 @@ class BlinkCamera extends Homey.Device {
 
         let wifi_strength = Camerainfo.wifi_strength;
         let wifi_signal_value = "Very poor";
-        if (wifi_strength === 5) { wifi_signal_value = "Very good"; }
-        else if (wifi_strength === 4) { wifi_signal_value = "Good"; }
-        else if (wifi_strength === 3) { wifi_signal_value = "Ok"; }
-        else if (wifi_strength === 2) { wifi_signal_value = "Poor"; }
-        else if (wifi_strength === 1) { wifi_signal_value = "Very poor"; }
+        if (wifi_strength === 5) {
+            wifi_signal_value = "Very good";
+        } else if (wifi_strength === 4) {
+            wifi_signal_value = "Good";
+        } else if (wifi_strength === 3) {
+            wifi_signal_value = "Ok";
+        } else if (wifi_strength === 2) {
+            wifi_signal_value = "Poor";
+        } else if (wifi_strength === 1) {
+            wifi_signal_value = "Very poor";
+        }
 
 
         let battery_state_value = Camerainfo.battery_state;
@@ -145,8 +164,8 @@ class BlinkCamera extends Homey.Device {
 
     }
 
-    TestMotion(){
-      console.log("test");
+    TestMotion() {
+        console.log("test");
     }
 
 

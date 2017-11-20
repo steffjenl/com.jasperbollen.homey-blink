@@ -148,6 +148,20 @@
         ]
       },
       {
+        "id": "Capture_video",
+        "title": {
+          "en": "Capture video",
+          "nl": "Video maken"
+        },
+        "args": [
+          {
+            "name": "IndoorCamera_on",
+            "type": "device",
+            "filter": "driver_id=BlinkIndoorCamera"
+          }
+        ]
+      },
+      {
         "id": "arm_network",
         "title": {
           "en": "Arm network",
