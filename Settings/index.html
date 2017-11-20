@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <script type="text/javascript">
+        function onHomeyReady() {
+            Homey.ready();
+
+        }
+        function save() {
+            Homey.set('BlinkUsername', document.getElementById('Username').value);
+            Homey.set('BlinkPassword', document.getElementById('Password').value);
+        }
+
+    </script>
+
+</head>
+<body>
+
+
+
+    <h1>Blink Camera's</h1>
+    <p>Set your Blink username and Password </p>
+    <p></p>
+
+
+    <fieldset>
+        <legend>Login Credentials</legend>
+
+        <div class="field row">
+            <label for="Username">Username</label>
+            <input id="Username" type="text" value="" />
+        </div>
+        <div class="field row">
+            <label for="Password">Password</label>
+            <input id="Password" type="Password" value="" />
+        </div>
+
+
+
+    </fieldset>
+
+    <button class="right" onclick="save()">Save changes</button>
+
+
+
+</body>
+</html>
