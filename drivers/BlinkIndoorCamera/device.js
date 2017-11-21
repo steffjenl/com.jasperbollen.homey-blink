@@ -5,54 +5,14 @@ const Homey = require('homey');
 
 class BlinkCamera extends Homey.Device {
     async onInit() {
-        //this.log('Device initiated');
-        console.log(this.getData().id);
 
         this.registerCapabilityListener('onoff', this.onCapabilityOnoff.bind(this));
         let today = new Date()
         today = Date.parse(today);
         this.setCapabilityValue("last_vid", today);
 
-        // Enable motion detection on the device
-        let EnableCam_run_listener =  async(args, state) => {
-          this.setCapabilityValue("onoff", true);
-          //Homey.app.EnableMotion(this.getData().id);
-          console.log(this.getData().id);
-          return true;
-        };
-        let EnableCam = new Homey.FlowCardAction('turn_on');
-        EnableCam
-            .register()
-            .registerRunListener(EnableCam_run_listener);
 
-        // Disable motion detection on the device
-        let DisableCam_run_listener = async(args, state) => {
-          this.setCapabilityValue("onoff", false);
-          //Homey.app.DisableMotion(this.getData().id);
-          console.log(this.getData().id);
-          return true;
-        };
-
-        let DisableCam = new Homey.FlowCardAction('turn_off');
-        DisableCam
-          .register()
-          .registerRunListener(DisableCam_run_listener);
-
-        // Capture a video from the device
-        let Capturevid_run_listener = async(args, state) => {
-            this.setCapabilityValue("onoff", false);
-            //Homey.app.Capture_vid(this.getData().id);
-            console.log(this.getData().id);
-            return true;
-
-        };
-
-        let Capturevid = new Homey.FlowCardAction('Capture_video');
-        Capturevid
-            .register()
-            .registerRunListener(Capturevid_run_listener);
-
-        //this.updateDevice();
+        this.updateDevice();
         //this.start_update_loop();
 
     }
@@ -94,7 +54,30 @@ class BlinkCamera extends Homey.Device {
         }
     }
 
+    onFlowCardIndoorCamera_on() {
+        this.setCapabilityValue("onoff", true);
+        Homey.app.EnableMotion(this.getData().id);
 
+        return true;
+    }
+
+    onFlowCardIndoorCamera_off() {
+        this.setCapabilityValue("onoff", false);
+        Homey.app.DisableMotion(this.getData().id);
+
+        return true;
+    }
+    onFlowCardCapture_vid() {
+        console.log("Capturing Video");
+        Homey.app.Capture_vid(this.getData().id);
+
+        return true;
+    }
+
+    onFlowCardchange_settings() {
+
+        return true;
+    }
 
 
     start_update_loop() {
@@ -170,7 +153,7 @@ class BlinkCamera extends Homey.Device {
     }
 
     TestMotion() {
-        console.log("test");
+
     }
 
 

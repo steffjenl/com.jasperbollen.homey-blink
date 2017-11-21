@@ -99,7 +99,6 @@ class BlinkApp extends Homey.App {
                         reject("Error during deserialization: " + body);
                     } else {
                         fulfill(NetworkID);
-                        console.log(NetworkID)
                     }
                 }
             });

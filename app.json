@@ -162,7 +162,7 @@
         },
         "args": [
           {
-            "name": "IndoorCamera_on",
+            "name": "Capture_vid",
             "type": "device",
             "filter": "driver_id=BlinkIndoorCamera"
           }
