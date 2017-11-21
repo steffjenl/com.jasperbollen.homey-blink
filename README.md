@@ -20,7 +20,7 @@ Control your Blink Camera's using Athom's Homey.
 Once the app is installed, provide your Blink login credentials in the app settings.
 Afterwards, you can add your Blink Camera's to Homey.
 
-##To-do
+## To-do
 - Split Blink indoor camera / Blink XT
 
 ## Version History
