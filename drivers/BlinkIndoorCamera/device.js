@@ -13,39 +13,44 @@ class BlinkCamera extends Homey.Device {
         today = Date.parse(today);
         this.setCapabilityValue("last_vid", today);
 
+        // Enable motion detection on the device
+        let EnableCam_run_listener =  async(args, state) => {
+          this.setCapabilityValue("onoff", true);
+          //Homey.app.EnableMotion(this.getData().id);
+          console.log(this.getData().id);
+          return true;
+        };
         let EnableCam = new Homey.FlowCardAction('turn_on');
         EnableCam
             .register()
-            .registerRunListener((args, state) => {
-                this.setCapabilityValue("onoff", true);
-                //Homey.app.EnableMotion(this.getData().id);
-                console.log(this.getData().id);
-                return true;
+            .registerRunListener(EnableCam_run_listener);
 
-            })
-
+        // Disable motion detection on the device
+        let DisableCam_run_listener = async(args, state) => {
+          this.setCapabilityValue("onoff", false);
+          //Homey.app.DisableMotion(this.getData().id);
+          console.log(this.getData().id);
+          return true;
+        };
 
         let DisableCam = new Homey.FlowCardAction('turn_off');
         DisableCam
-            .register()
-            .registerRunListener((args, state) => {
-                this.setCapabilityValue("onoff", false);
-                //Homey.app.DisableMotion(this.getData().id);
-                console.log(this.getData().id);
-                return true;
+          .register()
+          .registerRunListener(DisableCam_run_listener);
 
-            })
+        // Capture a video from the device
+        let Capturevid_run_listener = async(args, state) => {
+            this.setCapabilityValue("onoff", false);
+            //Homey.app.Capture_vid(this.getData().id);
+            console.log(this.getData().id);
+            return true;
+
+        };
 
         let Capturevid = new Homey.FlowCardAction('Capture_video');
         Capturevid
             .register()
-            .registerRunListener((args, state) => {
-                this.setCapabilityValue("onoff", false);
-                //Homey.app.Capture_vid(this.getData().id);
-                console.log(this.getData().id);
-                return true;
-
-            })
+            .registerRunListener(Capturevid_run_listener);
 
         //this.updateDevice();
         //this.start_update_loop();
