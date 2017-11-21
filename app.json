@@ -10,12 +10,19 @@
     "en": "Blink",
     "nl": "Blink"
   },
-  "category": "security",
+  "category": ["security", "Camera"],
   "version": "0.0.1",
   "compatibility": ">=1.5.0",
   "author": {
     "name": "Jasper Bollen",
     "email": "jasperbollen@gmail.com"
+  },
+  "contributing":{
+    "donate":{
+      "paypal":{
+        "username": "jasperbollen"
+      }
+    }
   },
   "capabilities": {
     "wifi_signal": {
