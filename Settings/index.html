@@ -7,9 +7,8 @@
     <title></title>
 
     <script type="text/javascript">
-        function onHomeyReady() {
+        function onHomeyReady(Homey){
             Homey.ready();
-
         }
         function save() {
             Homey.set('BlinkUsername', document.getElementById('Username').value);
