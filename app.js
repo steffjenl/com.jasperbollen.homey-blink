@@ -36,14 +36,14 @@ class BlinkApp extends Homey.App {
 
 
     //Login
-    GetToken(username, password) {
+    GetToken() {
         return new Promise(function(fulfill, reject) {
             var headers = {
                 "Host": "prod.immedia-semi.com",
                 "Content-Type": "application/json"
             };
-            let username = 'jasperbollen@gmail.com';
-            let password = 'E3dft7cu#';
+            let username = Homey.ManagerSettings.get('BlinkUsername');
+            let password = Homey.ManagerSettings.get('BlinkPassword');
             var loginBody = "{ \"password\" : \"" + password + "\", \"client_specifier\" : \"iPhone 9.2 | 2.2 | 222\", \"email\" : \"" + username + "\" }";
 
             var options = {
@@ -141,7 +141,7 @@ class BlinkApp extends Homey.App {
 
     //Get latest video
     async LatestVideo() {
-        var authtoken = await this.GetToken("username", "password");
+        var authtoken = await this.GetToken();
         return new Promise(function(fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
