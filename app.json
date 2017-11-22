@@ -10,6 +10,10 @@
     "en": "Blink",
     "nl": "Blink"
   },
+  "tags":{
+    "en": ["Blink","Camera","Secutiy"],
+    "nl": ["Blink","Camera","Secutiy"]
+  },
   "category": ["security", "Camera"],
   "version": "0.0.1",
   "compatibility": ">=1.5.0",

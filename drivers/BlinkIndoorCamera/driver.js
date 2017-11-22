@@ -35,7 +35,7 @@ class BlinkDriver extends Homey.Driver {
             id: DeviceIDp
         });
         if (Object.prototype.hasOwnProperty.call(device, '__ready')) {
-            device.TestMotion();
+            device.TestMotion(DateString);
         }
     }
 

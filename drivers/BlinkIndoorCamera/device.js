@@ -25,20 +25,6 @@ class BlinkCamera extends Homey.Device {
         this.log('device deleted');
     }
 
-    startMotionTrigger() {
-        let MotionDetectedTrigger = new Homey.FlowCardTriggerDevice('motion_trigger');
-        let device = this;
-        let tokens = {};
-        let state = {};
-        MotionDetectedTrigger
-            .register()
-            .trigger(device, tokens, state)
-            .catch(this.error)
-            .then(this.log)
-
-        this.log('trigger started');
-    }
-
     onCapabilityOnoff(value, opts, callback) {
         //if value = true, it's on.. else off'
         if (value) {
@@ -67,6 +53,7 @@ class BlinkCamera extends Homey.Device {
 
         return true;
     }
+
     onFlowCardCapture_vid() {
         console.log("Capturing Video");
         Homey.app.Capture_vid(this.getData().id);
@@ -79,14 +66,23 @@ class BlinkCamera extends Homey.Device {
         return true;
     }
 
+    startMotionTrigger() {
+        let MotionDetectedTrigger = new Homey.FlowCardTriggerDevice('motion_trigger');
+        let device = this;
+        let tokens = {};
+        let state = {};
+        MotionDetectedTrigger
+            .register()
+            .trigger(device, tokens, state)
+            .catch(this.error)
+            .then(this.log)
+    }
 
     start_update_loop() {
         setInterval(() => {
             this.updateDevice();
         }, 300000); //5 min
     }
-
-
 
     async updateDevice() {
         let Camerainfo = await Homey.app.GetCamera(this.getData().id);
@@ -128,32 +124,16 @@ class BlinkCamera extends Homey.Device {
     }
 
 
-    async CheckMotion_settings() {
-        //Get motion settings
-        let last_cam = Homey.ManagerSettings.get('Latest_vid_Cam');
-        let last_vid = Homey.ManagerSettings.get('Latest_vid_DateTime');
+    MotionDetected(DateString) {
+        let Event_date = DateString;
+        let Current_date = this.getCapabilityValue("last_vid");
 
-        //Get capability value
-        let current_vid = this.getCapabilityValue("last_vid");
-
-        //Get device data
-        let cam_id = this.getData().id;
-        //Check if ID's match
-        if (cam_id == last_cam) {
-            //Check if current new last vid > current vid
-            if (last_vid > current_vid) {
-                console.log('new motion detected on camera: ' + this.getData().id);
-                this.startMotionTrigger();
-            }
-            //store new date in capability
-            this.setCapabilityValue("last_vid", last_vid);
+        //Check if the event date is newer
+        if(Event_date > Current_date){
+          console.log("new motion detected on camera: "+ this.getData().id);
+          this.setCapabilityValue("last_vid", Event_date);
+          startMotionTrigger();
         }
-
-
-    }
-
-    TestMotion() {
-
     }
 
 

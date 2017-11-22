@@ -476,14 +476,14 @@ class BlinkApp extends Homey.App {
         //Save motion info
         if (typeof vid !== "undefined") {
             let EventDate = Date.parse(vid.updated_at);
-            let EventID = vid.camera_id;
+            let EventCamID = vid.camera_id;
 
-            Homey.ManagerDrivers.getDriver('BlinkIndoorCamera').ParseTriggerData(EventID, EventDate);
+            Homey.ManagerDrivers.getDriver('BlinkIndoorCamera').ParseTriggerData(EventCamID, EventDate);
         } else {
             let EventDate = Date.parse("01-01-1900");
-            let EventID = "00000";
+            let EventCamID = "00000";
 
-            Homey.ManagerDrivers.getDriver('BlinkIndoorCamera').ParseTriggerData(EventID, EventDate);
+            Homey.ManagerDrivers.getDriver('BlinkIndoorCamera').ParseTriggerData(EventCamID, EventDate);
         }
     }
 
