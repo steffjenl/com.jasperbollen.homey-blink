@@ -10,7 +10,6 @@ Control your Blink Camera's using Athom's Homey.
 - Enable motion detection
 - Disable motion detection
 - Capture a video clip
-- Change a camera setting
 
 ### App actions
 - Arm the network
@@ -22,7 +21,7 @@ Afterwards, you can add your Blink Camera's to Homey.
 
 ## To-do
 - Device settings
-- Action card to change settings
+- Change a camera setting
 - Split Blink indoor camera / Blink XT
 
 ## Version History
