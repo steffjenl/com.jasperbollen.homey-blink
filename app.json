@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/tmsns/homey-json-schema/master/schema.json",
-  "id": "com.blink.app",
+  "id": "com.jasperbollen.homey-blink",
   "sdk": 2,
   "name": {
     "en": "Blink Camera's",
@@ -185,7 +185,7 @@
           "en": "Disarm network",
           "nl": "Beveiliging uitzetten"
         }
-      }  
+      }
     ]
   }
   }

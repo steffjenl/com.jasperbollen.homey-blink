@@ -10,10 +10,8 @@ class BlinkApp extends Homey.App {
     async onInit() {
         this.log('App is running...');
 
-        //this.GetAuthToken();
         this.CheckMotion();
-
-        //this.MotionLoop();
+        this.MotionLoop();
 
         let ArmNetwork = new Homey.FlowCardAction('arm_network');
         ArmNetwork
@@ -47,6 +45,11 @@ class BlinkApp extends Homey.App {
             };
             let username = Homey.ManagerSettings.get('BlinkUsername');
             let password = Homey.ManagerSettings.get('BlinkPassword');
+            if(username == null){
+              console.log("No username has been set");
+            }
+            else{
+              console.log("username: "+username);
             var loginBody = "{ \"password\" : \"" + password + "\", \"client_specifier\" : \"iPhone 9.2 | 2.2 | 222\", \"email\" : \"" + username + "\" }";
 
             var options = {
@@ -68,26 +71,35 @@ class BlinkApp extends Homey.App {
                         reject("Token not in response: " + body);
                     } else {
                         //Store authtoken in ManagerSettings
-                        Homey.set('authtoken', authtoken);
+                        console.log("storing authtoken");
+                        Homey.ManagerSettings.set('authtoken', authtoken);
                         fulfill(authtoken);
-                        console.log("authtoken has been set");
                     }
+                }
             });
+
+          }
         });
     }
 
     async GetAuthToken(){
       let authtoken =  Homey.ManagerSettings.get('authtoken');
-      if (authtoken = ""){
-        console.log("Authtoken not available, authtoken requested");
-        authtokenf = away this.GetToken();
-        authtoken =  Homey.ManagerSettings.get('authtoken');
-        fulfill(authtoken);
+
+      if (!authtoken){
+        console.log("No authtoken has been set, requesting authtoken");
+        var authtokenf = await this.GetToken();
+        let authtoken =  Homey.ManagerSettings.get('authtoken');
+        return new Promise(function(fulfill, reject) {
+          fulfill(authtoken);
+          });
       }
       else{
-        console.log("Authtoken available");
-        fulfill(authtoken);
+        return new Promise(function(fulfill, reject) {
+          console.log("Authtoken available");
+          fulfill(authtoken);
+          });
       }
+
 
     }
 
@@ -119,7 +131,7 @@ class BlinkApp extends Homey.App {
                         reject("Error during deserialization: " + body);
                     } else {
                         fulfill(NetworkID);
-                        Homey.set('network', NetworkID);
+                        Homey.ManagerSettings.set('network', NetworkID);
                     }
                 }
             });
@@ -188,7 +200,6 @@ class BlinkApp extends Homey.App {
                     if (latestvideo == null) {
                         fulfill(latestvideo);
                     } else {
-                        console.log("Last video has been retrieved");
                         fulfill(latestvideo);
                     }
                 }
@@ -554,8 +565,18 @@ class BlinkApp extends Homey.App {
     MotionLoop() {
         setInterval(() => {
             this.CheckMotion();
-        }, 1000);
+            console.log("Motion check has ran");
+        }, 5000);
     }
+
+    RefreshAuthToken() {
+        setInterval(() => {
+            this.GetToken();
+            console.log("A new authtoken has been requested");
+        }, 100000);
+    }
+
+
 
 }
 

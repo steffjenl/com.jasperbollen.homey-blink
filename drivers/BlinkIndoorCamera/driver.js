@@ -18,9 +18,6 @@ class BlinkDriver extends Homey.Driver {
             .register()
             .registerRunListener(args => args.Capture_vid.onFlowCardCapture_vid());
 
-        new Homey.FlowCardAction('change_settings')
-            .register()
-            .registerRunListener(args => args.IndoorCamera_setting.onFlowCardchange_settings());
     }
 
 
@@ -35,7 +32,7 @@ class BlinkDriver extends Homey.Driver {
             id: DeviceIDp
         });
         if (Object.prototype.hasOwnProperty.call(device, '__ready')) {
-            device.TestMotion(DateString);
+            device.MotionDetected(DateString);
         }
     }
 
