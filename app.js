@@ -10,7 +10,7 @@ class BlinkApp extends Homey.App {
     async onInit() {
         this.log('App is running...');
 
-        this.GetAuthToken();
+        //this.GetAuthToken();
         this.CheckMotion();
 
         //this.MotionLoop();
@@ -178,14 +178,17 @@ class BlinkApp extends Homey.App {
             request(options, function(err, res, body) {
                 if (err) {
                     reject("Request Error: " + err);
+                    console.log("Error in request: "+err);
                 } else if (res.statusCode !== 200) {
                     reject("API Response not valid: " + body);
+                    console.log("Error in return: "+body);
                 } else {
                     var latestvideo = JSON.parse(body);
                     var latestvideo = latestvideo[0];
                     if (latestvideo == null) {
                         fulfill(latestvideo);
                     } else {
+                        console.log("Last video has been retrieved");
                         fulfill(latestvideo);
                     }
                 }
@@ -489,6 +492,7 @@ class BlinkApp extends Homey.App {
             });
         });
     }
+
     //Update settings for motion detection
     async CheckMotion() {
         //Get Last Motion
