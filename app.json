@@ -185,54 +185,7 @@
           "en": "Disarm network",
           "nl": "Beveiliging uitzetten"
         }
-      },
-      {
-        "id": "change_settings",
-        "title": {
-          "en": "Change camera settings",
-          "nl": "Verander camera instelling"
-        },
-        "args": [
-          {
-            "name": "IndoorCamera_setting",
-            "type": "device",
-            "filter": "driver_id=BlinkIndoorCamera"
-          },
-          {
-            "name": "setting",
-            "type": "dropdown",
-            "values": [
-              {
-                "id": "video_length",
-                "label": {
-                  "en": "Video length",
-                  "nl": "Video lengte"
-                }
-              },
-              {
-                "id": "alert_interval",
-                "label": {
-                  "en": "Interval",
-                  "nl": "Interval"
-                }
-              },
-              {
-                "id": "motion_sensitivity",
-                "label": {
-                  "en": "Motion sensitivity",
-                  "nl": "Gevoeligheid"
-                }
-              }
-            ]
-          },
-          {
-            "name": "value",
-            "type": "number",
-            "min": 1
-
-          }
-        ]
-      }
+      }  
     ]
   }
   }

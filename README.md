@@ -21,6 +21,8 @@ Once the app is installed, provide your Blink login credentials in the app setti
 Afterwards, you can add your Blink Camera's to Homey.
 
 ## To-do
+- Device settings
+- Action card to change settings
 - Split Blink indoor camera / Blink XT
 
 ## Version History

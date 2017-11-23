@@ -61,11 +61,6 @@ class BlinkCamera extends Homey.Device {
         return true;
     }
 
-    onFlowCardchange_settings() {
-
-        return true;
-    }
-
     startMotionTrigger() {
         let MotionDetectedTrigger = new Homey.FlowCardTriggerDevice('motion_trigger');
         let device = this;

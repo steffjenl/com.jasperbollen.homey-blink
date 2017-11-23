@@ -9,7 +9,10 @@ class BlinkApp extends Homey.App {
 
     async onInit() {
         this.log('App is running...');
+
+        this.GetAuthToken();
         this.CheckMotion();
+
         //this.MotionLoop();
 
         let ArmNetwork = new Homey.FlowCardAction('arm_network');
@@ -64,16 +67,33 @@ class BlinkApp extends Homey.App {
                     if (authtoken == null || authtoken == "") {
                         reject("Token not in response: " + body);
                     } else {
+                        //Store authtoken in ManagerSettings
+                        Homey.set('authtoken', authtoken);
                         fulfill(authtoken);
+                        console.log("authtoken has been set");
                     }
-                }
             });
         });
     }
 
+    async GetAuthToken(){
+      let authtoken =  Homey.ManagerSettings.get('authtoken');
+      if (authtoken = ""){
+        console.log("Authtoken not available, authtoken requested");
+        authtokenf = away this.GetToken();
+        authtoken =  Homey.ManagerSettings.get('authtoken');
+        fulfill(authtoken);
+      }
+      else{
+        console.log("Authtoken available");
+        fulfill(authtoken);
+      }
+
+    }
+
     //Get info about sync network
     async GetNetworks() {
-        var authtoken = await this.GetToken("username", "password");
+        var authtoken = await this.GetAuthToken();
         return new Promise(function(fulfill, reject) {
 
             var headers = {
@@ -99,6 +119,7 @@ class BlinkApp extends Homey.App {
                         reject("Error during deserialization: " + body);
                     } else {
                         fulfill(NetworkID);
+                        Homey.set('network', NetworkID);
                     }
                 }
             });
@@ -107,7 +128,7 @@ class BlinkApp extends Homey.App {
 
     //Get info as displayed on Homescreen
     async GetHomescreen(authtoken) {
-        var authtoken = await this.GetToken("username", "password");
+        var authtoken = await this.GetAuthToken();
         return new Promise(function(fulfill, reject) {
 
             var headers = {
@@ -141,7 +162,7 @@ class BlinkApp extends Homey.App {
 
     //Get latest video
     async LatestVideo() {
-        var authtoken = await this.GetToken();
+        var authtoken = await this.GetAuthToken();
         return new Promise(function(fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
@@ -175,7 +196,7 @@ class BlinkApp extends Homey.App {
 
     //Get Events's
     async GetEvents() {
-        var authtoken = await this.GetToken("username", "password");
+        var authtoken = await this.GetAuthToken();
         var networkID = await this.GetNetworks();
         var networkID = networkID.id;
         return new Promise(function(fulfill, reject) {
@@ -210,7 +231,7 @@ class BlinkApp extends Homey.App {
 
     //Get Camera's
     async GetCameras() {
-        var authtoken = await this.GetToken("username", "password");
+        var authtoken = await this.GetAuthToken();
         var networkID = await this.GetNetworks();
         var networkID = networkID.id;
         return new Promise(function(fulfill, reject) {
@@ -257,7 +278,7 @@ class BlinkApp extends Homey.App {
 
     //Get Camera info
     async GetCamera(CameraID) {
-        var authtoken = await this.GetToken("username", "password");
+        var authtoken = await this.GetAuthToken();
         var networkID = await this.GetNetworks();
         var networkID = networkID.id;
         return new Promise(function(fulfill, reject) {
@@ -296,7 +317,7 @@ class BlinkApp extends Homey.App {
 
     //Enable Motion for cam
     async EnableMotion(CameraID) {
-        var authtoken = await this.GetToken("username", "password");
+        var authtoken = await this.GetAuthToken();
         var networkID = await this.GetNetworks();
         var networkID = networkID.id;
         var cameraID = CameraID;
@@ -331,7 +352,7 @@ class BlinkApp extends Homey.App {
 
     //Disable motion for cam
     async DisableMotion(CameraID) {
-        var authtoken = await this.GetToken("username", "password");
+        var authtoken = await this.GetAuthToken();
         var networkID = await this.GetNetworks();
         var networkID = networkID.id;
         var cameraID = CameraID;
@@ -366,7 +387,7 @@ class BlinkApp extends Homey.App {
 
     //Disarm the system
     async Disarm() {
-        var authtoken = await this.GetToken("username", "password");
+        var authtoken = await this.GetAuthToken();
         var networkID = await this.GetNetworks();
         var networkID = networkID.id;
         return new Promise(function(fulfill, reject) {
@@ -402,7 +423,7 @@ class BlinkApp extends Homey.App {
 
     //Arm the system
     async Arm() {
-        var authtoken = await this.GetToken("username", "password");
+        var authtoken = await this.GetAuthToken();
         var networkID = await this.GetNetworks();
         var networkID = networkID.id;
         return new Promise(function(fulfill, reject) {
@@ -436,7 +457,7 @@ class BlinkApp extends Homey.App {
 
     //Capture a videos
     async Capture_vid(CamID) {
-        var authtoken = await this.GetToken("username", "password");
+        var authtoken = await this.GetAuthToken();
         var networkID = await this.GetNetworks();
         var networkID = networkID.id;
         var Camera = CamID;
@@ -489,7 +510,7 @@ class BlinkApp extends Homey.App {
 
     //Change camera setting
     async ChangeCamSetting(CameraID, Setting, Value) {
-        var authtoken = await this.GetToken("username", "password");
+        var authtoken = await this.GetAuthToken();
         var networkID = await this.GetNetworks();
         var networkID = networkID.id;
         return new Promise(function(fulfill, reject) {
