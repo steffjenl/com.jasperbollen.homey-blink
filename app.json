@@ -14,7 +14,7 @@
     "en": ["Blink","Camera","Secutiy"],
     "nl": ["Blink","Camera","Secutiy"]
   },
-  "category": ["security", "Camera"],
+  "category": ["security"],
   "version": "0.0.1",
   "compatibility": ">=1.5.0",
   "author": {
@@ -96,8 +96,8 @@
         ]
       },
       "images": {
-        "large": "/drivers/my_driver/assets/images/large.png",
-        "small": "/drivers/my_driver/assets/images/small.png"
+        "large": "/drivers/BlinkIndoorCamera/assets/images/large.png",
+        "small": "/drivers/BlinkIndoorCamera/assets/images/small.png"
       },
       "pair": [
         {
