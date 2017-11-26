@@ -131,6 +131,34 @@
             "filter": "driver_id=BlinkIndoorCamera"
           }
         ]
+      },
+      {
+        "id": "snapshot_created",
+        "title": {
+          "en": "A snapshot was created",
+          "nl": "Er is een snapshot gemaakt"
+        },
+        "tokens":[
+          {
+            "name": "image",
+            "title": {
+              "en": "image"
+            }
+          },
+          {
+            "name": "device",
+            "title": {
+              "en": "Device"
+            }
+          }
+        ],
+        "args": [
+          {
+            "name": "IndoorCamera",
+            "type": "device",
+            "filter": "driver_id=BlinkIndoorCamera"
+          }
+        ]
       }
     ],
     "actions": [
@@ -171,6 +199,20 @@
         "args": [
           {
             "name": "Capture_vid",
+            "type": "device",
+            "filter": "driver_id=BlinkIndoorCamera"
+          }
+        ]
+      },
+      {
+        "id": "Capture_snapshot",
+        "title": {
+          "en": "Capture snapshot",
+          "nl": "Snapshot maken"
+        },
+        "args": [
+          {
+            "name": "Capture_snap",
             "type": "device",
             "filter": "driver_id=BlinkIndoorCamera"
           }

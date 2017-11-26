@@ -9,7 +9,7 @@ class BlinkApp extends Homey.App {
 
     async onInit() {
         this.log('App is running...');
-
+        this.GetToken();
         this.CheckMotion();
         this.MotionLoop();
 
@@ -49,7 +49,7 @@ class BlinkApp extends Homey.App {
               console.log("No username has been set");
             }
             else{
-              console.log("username: "+username);
+              //console.log("username: "+username);
             var loginBody = "{ \"password\" : \"" + password + "\", \"client_specifier\" : \"iPhone 9.2 | 2.2 | 222\", \"email\" : \"" + username + "\" }";
 
             var options = {
@@ -86,7 +86,7 @@ class BlinkApp extends Homey.App {
       let authtoken =  Homey.ManagerSettings.get('authtoken');
 
       if (!authtoken){
-        console.log("No authtoken has been set, requesting authtoken");
+        //console.log("No authtoken has been set, requesting authtoken");
         var authtokenf = await this.GetToken();
         let authtoken =  Homey.ManagerSettings.get('authtoken');
         return new Promise(function(fulfill, reject) {
@@ -95,7 +95,7 @@ class BlinkApp extends Homey.App {
       }
       else{
         return new Promise(function(fulfill, reject) {
-          console.log("Authtoken available");
+          //console.log("Authtoken available");
           fulfill(authtoken);
           });
       }
@@ -139,7 +139,7 @@ class BlinkApp extends Homey.App {
     }
 
     //Get info as displayed on Homescreen
-    async GetHomescreen(authtoken) {
+    async GetHomescreen(CameraID) {
         var authtoken = await this.GetAuthToken();
         return new Promise(function(fulfill, reject) {
 
@@ -164,8 +164,10 @@ class BlinkApp extends Homey.App {
                     if (HomescreenData == null) {
                         reject("Error during deserialization: " + body);
                     } else {
-                        homescreen = HomescreenData;
+                        var homescreen = HomescreenData;
+
                         fulfill(homescreen);
+
                     }
                 }
             });
@@ -469,7 +471,7 @@ class BlinkApp extends Homey.App {
         });
     }
 
-    //Capture a videos
+    //Capture a video
     async Capture_vid(CamID) {
         var authtoken = await this.GetAuthToken();
         var networkID = await this.GetNetworks();
@@ -500,6 +502,77 @@ class BlinkApp extends Homey.App {
                         fulfill();
                     }
                 }
+            });
+        });
+    }
+
+    //Capture a snapshot
+    async Capture_snap(CamID) {
+        var authtoken = await this.GetAuthToken();
+        var networkID = await this.GetNetworks();
+        var networkID = networkID.id;
+        var Camera = CamID;
+        return new Promise(function(fulfill, reject) {
+            var headers = {
+                "TOKEN_AUTH": authtoken,
+                "Host": "rest.prde.immedia-semi.com",
+                "Content-Type": "application/json"
+            };
+
+            var options = {
+                url: "https://rest.prde.immedia-semi.com/network/" + networkID + "/camera/" + Camera + "/thumbnail",
+                method: "POST",
+                headers: headers
+            };
+            request(options, function(err, res, body) {
+                if (err) {
+                    reject("Request Error: " + err);
+                } else if (res.statusCode !== 200) {
+                    reject("API Response not valid: " + body);
+                } else {
+                    var Snapresponse = JSON.parse(body);
+                    if (Snapresponse == null) {
+                        reject("Error during deserialization: " + body);
+                    } else {
+                        fulfill(Snapresponse);
+                    }
+                }
+            });
+        });
+    }
+
+    //GetImage
+    async GetImg(url) {
+        var authtoken = await this.GetAuthToken();
+        return new Promise(function(fulfill, reject) {
+            var headers = {
+                "TOKEN_AUTH": authtoken,
+                "Host": "prde.immedia-semi.com",
+                "Content-Type": "application/json"
+            };
+
+            var options = {
+                url: "https://rest.prde.immedia-semi.com/" + url + ".jpg",
+                method: "GET",
+                encoding: null,
+                headers: headers
+            };
+            request(options, function(err, res, body) {
+                if (err) {
+                    reject("Request Error: " + err);
+                    console.log("Error in request: "+err);
+                } else if (res.statusCode !== 200) {
+                    reject("API Response not valid: " + body);
+                    console.log("Error in return: "+body);
+                } else {
+                    var MyImage = body;
+                    if (MyImage == null) {
+                        reject("No Image Data found");
+                    } else {
+                        fulfill(MyImage);
+                    }
+                }
+
             });
         });
     }

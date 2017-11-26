@@ -2,6 +2,8 @@
 'use strict';
 
 const Homey = require('homey');
+const Promise = require('promise');
+const request = require('request');
 
 class BlinkCamera extends Homey.Device {
     async onInit() {
@@ -10,10 +12,10 @@ class BlinkCamera extends Homey.Device {
         let today = new Date()
         today = Date.parse(today);
         this.setCapabilityValue("last_vid", today);
-
-
         this.updateDevice();
         this.start_update_loop();
+
+
 
     }
 
@@ -58,6 +60,55 @@ class BlinkCamera extends Homey.Device {
         console.log("Capturing Video");
         Homey.app.Capture_vid(this.getData().id);
 
+        return true;
+    }
+
+    async onFlowCardCapture_snap() {
+      var imageGrabbed = new Homey.FlowCardTriggerDevice('snapshot_created')
+          .register()
+          .registerRunListener((args, state) => {
+
+              return Promise.resolve(true);
+
+          })
+        var Snap = await Homey.app.Capture_snap(this.getData().id);
+        //Wait for image to be taken
+        //var sleep = await this.sleep(9000);
+        //Get url of image
+        var url_s = await Homey.app.GetCamera(this.getData().id);
+        var url = url_s.thumbnail;
+        //Get the image
+        var imgbody = await Homey.app.GetImg(url);
+
+        //console.log(MyImage);
+        let myImage = new Homey.Image('jpg');
+
+        //myImage.setPath('/userdata/image.jpg');
+        myImage.setBuffer(imgbody);
+        myImage.register()
+            .then(() => {
+
+                // create a token & register it
+                let myImageToken = new Homey.FlowToken('image', {
+                    type: 'image',
+                    title: 'Image'
+                })
+
+                myImageToken
+                    .register()
+                    .then(() => {
+                        myImageToken.setValue(myImage)
+                            .then(console.log('setValue'))
+                    })
+
+                // trigger a Flow
+                imageGrabbed
+                    .trigger(this,{
+                        image: myImage,
+                        'url': url
+                    })
+                    .then(console.log("Image grabbed"))
+            })
         return true;
     }
 
@@ -123,13 +174,16 @@ class BlinkCamera extends Homey.Device {
         let Current_date = this.getCapabilityValue("last_vid");
 
         //Check if the event date is newer
-        if(Event_date > Current_date){
-          console.log("new motion detected on camera: "+ this.getData().id);
-          this.setCapabilityValue("last_vid", Event_date);
-          this.startMotionTrigger();
+        if (Event_date > Current_date) {
+            console.log("new motion detected on camera: " + this.getData().id);
+            this.setCapabilityValue("last_vid", Event_date);
+            this.startMotionTrigger();
         }
     }
 
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
 
 }
 
