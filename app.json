@@ -143,13 +143,15 @@
             "name": "image",
             "title": {
               "en": "image"
-            }
+            },
+            "type": "image"
           },
           {
             "name": "device",
             "title": {
               "en": "Device"
-            }
+            },
+            "type": "string"
           }
         ],
         "args": [
