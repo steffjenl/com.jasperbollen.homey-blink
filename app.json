@@ -145,6 +145,13 @@
               "en": "image"
             },
             "type": "image"
+          },
+          {
+            "name": "device",
+            "title": {
+              "en": "device"
+            },
+            "type": "string"
           }
         ],
         "args": [
