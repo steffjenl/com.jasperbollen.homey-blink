@@ -25,4 +25,9 @@ Afterwards, you can add your Blink Camera's to Homey.
 - Split Blink indoor camera / Blink XT
 
 ## Version History
-**v0.0.1**
+**v0.1.0**
+Initial Release
+
+**V0.1.2**
+Added snapshot functionality
+Lessen API calls
