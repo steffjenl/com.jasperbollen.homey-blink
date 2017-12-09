@@ -151,6 +151,9 @@
             "title": {
               "en": "device"
             },
+            "example":{
+              "en":"Camera"
+            },
             "type": "string"
           }
         ],
