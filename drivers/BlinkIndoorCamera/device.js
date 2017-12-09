@@ -73,10 +73,11 @@ class BlinkCamera extends Homey.Device {
           })
         var Snap = await Homey.app.Capture_snap(this.getData().id);
         //Wait for image to be taken
-        //var sleep = await this.sleep(9000);
+        var sleep = await this.sleep(9000);
         //Get url of image
         var url_s = await Homey.app.GetCamera(this.getData().id);
         var url = url_s.thumbnail;
+        var device = this.getName();
         //Get the image
         var imgbody = await Homey.app.GetImg(url);
 
@@ -105,9 +106,10 @@ class BlinkCamera extends Homey.Device {
                 imageGrabbed
                     .trigger(this,{
                         image: myImage,
-                        'url': url
+                        device: device
                     })
                     .then(console.log("Image grabbed"))
+                    .catch(this.error)
             })
         return true;
     }

@@ -12,6 +12,7 @@ class BlinkApp extends Homey.App {
         this.GetToken();
         this.CheckMotion();
         this.MotionLoop();
+        this.RefreshAuthToken();
 
         let ArmNetwork = new Homey.FlowCardAction('arm_network');
         ArmNetwork
@@ -638,7 +639,7 @@ class BlinkApp extends Homey.App {
     MotionLoop() {
         setInterval(() => {
             this.CheckMotion();
-            console.log("Motion check has ran");
+            //console.log("Motion check has ran");
         }, 5000);
     }
 
@@ -646,7 +647,7 @@ class BlinkApp extends Homey.App {
         setInterval(() => {
             this.GetToken();
             console.log("A new authtoken has been requested");
-        }, 100000);
+        }, 43200000);
     }
 
 
