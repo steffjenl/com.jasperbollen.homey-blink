@@ -31,3 +31,6 @@ Initial Release
 **V0.1.2**
 Added snapshot functionality
 Lessen API calls
+
+**V0.1.3**
+Bugfixes
