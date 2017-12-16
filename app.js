@@ -582,7 +582,6 @@ class BlinkApp extends Homey.App {
     async CheckMotion() {
         //Get Last Motion
         let vid = await this.LatestVideo();
-
         //Save motion info
         if (typeof vid !== "undefined") {
             let EventDate = Date.parse(vid.updated_at);

@@ -14,7 +14,7 @@ class BlinkCamera extends Homey.Device {
         this.setCapabilityValue("last_vid", today);
         this.updateDevice();
         this.start_update_loop();
-
+        console.log(this.getData().id);
 
 
     }
@@ -174,7 +174,6 @@ class BlinkCamera extends Homey.Device {
     MotionDetected(DateString) {
         let Event_date = DateString;
         let Current_date = this.getCapabilityValue("last_vid");
-
         //Check if the event date is newer
         if (Event_date > Current_date) {
             console.log("new motion detected on camera: " + this.getData().id);

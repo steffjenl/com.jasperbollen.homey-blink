@@ -35,8 +35,12 @@ class BlinkDriver extends Homey.Driver {
         const device = this.getDevice({
             id: DeviceIDp
         });
-        if (Object.prototype.hasOwnProperty.call(device, '__ready')) {
+        if (Object.prototype.hasOwnProperty.call(device, '_events')) {
             device.MotionDetected(DateString);
+        }
+        else{
+          console.log("Unknown device: " +DeviceIDp);
+          //device.MotionDetected(DateString);
         }
     }
 
