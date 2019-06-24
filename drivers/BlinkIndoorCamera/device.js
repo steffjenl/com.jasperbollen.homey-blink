@@ -122,8 +122,7 @@ class BlinkCamera extends Homey.Device {
         MotionDetectedTrigger
             .register()
             .trigger(device, tokens, state)
-            .catch(this.error)
-            .then(this.log)
+            .catch(this.error);
     }
 
     start_update_loop() {
@@ -137,10 +136,10 @@ class BlinkCamera extends Homey.Device {
         //console.log(Camerainfo);
 
         //Get values
-        let temp = Camerainfo.temperature;
+        let temp = Camerainfo.temp;
         let measure_temperature_value = (temp - 32) * 5 / 9;
 
-        let onoff_value = Camerainfo.enabled; //not correct yet, should contain the "arm/not armed network status"
+        let onoff_value = Camerainfo.armed; //not correct yet, should contain the "arm/not armed network status"
 
         let wifi_strength = Camerainfo.wifi_strength;
         let wifi_signal_value = "Very poor";
@@ -158,14 +157,14 @@ class BlinkCamera extends Homey.Device {
 
 
         let battery_state_value = Camerainfo.battery_state;
-        let clip_length_value = Camerainfo.video_length;
+        //let clip_length_value = Camerainfo.video_length;
 
         //Set Capabilities
         this.setCapabilityValue("onoff", onoff_value);
         this.setCapabilityValue("measure_temperature", measure_temperature_value);
         this.setCapabilityValue("wifi_signal", wifi_signal_value);
         this.setCapabilityValue("battery_state", battery_state_value);
-        this.setCapabilityValue("clip_length", clip_length_value);
+        //this.setCapabilityValue("clip_length", clip_length_value);
 
 
         this.log('device has been updated');
@@ -179,6 +178,7 @@ class BlinkCamera extends Homey.Device {
             console.log("new motion detected on camera: " + this.getData().id);
             this.setCapabilityValue("last_vid", Event_date);
             this.startMotionTrigger();
+            this.onFlowCardCapture_snap();
         }
     }
 
