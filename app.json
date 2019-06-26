@@ -20,17 +20,22 @@
   },
   "category": ["security"],
   "version": "0.1.3",
-  "compatibility": ">=1.5.0",
+  "compatibility": ">=2.2.0",
   "author": {
     "name": "Jasper Bollen",
     "email": "jasperbollen@gmail.com"
   },
   "contributing":{
-    "donate":{
-      "paypal":{
-        "username": "jasperbollen"
+    "developers": [
+      {
+        "name": "Jasper Bollen",
+        "email": "jasperbollen@gmail.com"
+      },
+      {
+        "name": "Stèphan Eizinga",
+        "email": "stephan@monkeysoft.nl"
       }
-    }
+    ]
   },
   "capabilities": {
     "wifi_signal": {
@@ -73,7 +78,7 @@
   "drivers": [
     {
       "id": "BlinkIndoorCamera",
-      "class": "sensor",
+      "class": "camera",
       "capabilities": [ "onoff", "wifi_signal", "battery_state", "clip_length", "last_vid", "measure_temperature" ],
       "name": {
         "en": "Blink indoor camera",

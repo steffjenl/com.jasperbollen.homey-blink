@@ -39,6 +39,8 @@ class BlinkApp extends Homey.App {
 
     //Login
     GetToken() {
+        const parent = this;
+
         return new Promise(function(fulfill, reject) {
             var headers = {
                 "Host": "prod.immedia-semi.com",
@@ -73,7 +75,7 @@ class BlinkApp extends Homey.App {
                         reject("Token not in response: " + body);
                     } else {
                         //Store authtoken in ManagerSettings
-                        console.log("storing authtoken");
+                        parent.log("storing authtoken");
                         Homey.ManagerSettings.set('authtoken', authtoken);
                         Homey.ManagerSettings.set('accountId', accountId);
                         fulfill(authtoken);
@@ -87,10 +89,12 @@ class BlinkApp extends Homey.App {
 
     async GetAuthToken(){
       let authtoken =  Homey.ManagerSettings.get('authtoken');
+      const parent = this;
 
       if (!authtoken){
         return new Promise(function(fulfill, reject) {
-          fulfill(authtoken);
+            authtoken =  parent.GetToken();
+            fulfill(authtoken);
           });
       }
       else{

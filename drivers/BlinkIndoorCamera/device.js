@@ -4,8 +4,11 @@
 const Homey = require('homey');
 const Promise = require('promise');
 const request = require('request');
+const fetch = require('node-fetch');
 
 class BlinkCamera extends Homey.Device {
+
+
     async onInit() {
 
         this.registerCapabilityListener('onoff', this.onCapabilityOnoff.bind(this));
@@ -14,8 +17,9 @@ class BlinkCamera extends Homey.Device {
         this.setCapabilityValue("last_vid", today);
         this.updateDevice();
         this.start_update_loop();
-        console.log(this.getData().id);
 
+        // Register images
+        await this._registerSnapshotImage();
 
     }
 
@@ -85,7 +89,7 @@ class BlinkCamera extends Homey.Device {
         let myImage = new Homey.Image('jpg');
 
         //myImage.setPath('/userdata/image.jpg');
-        myImage.setBuffer(imgbody);
+        myImage.setStream(imgbody);
         myImage.register()
             .then(() => {
 
@@ -179,11 +183,86 @@ class BlinkCamera extends Homey.Device {
             this.setCapabilityValue("last_vid", Event_date);
             this.startMotionTrigger();
             this.onFlowCardCapture_snap();
+            // Register images
+            this._registerSnapshotImage();
         }
     }
 
     sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    /**
+     * Method that makes a call to the API to generate a new snapshot and returns the new url.
+     * @private
+     */
+    async _getNewSnapshotUrl() {
+        const Snapresponse = await Homey.app.Capture_snap(this.getData().id);
+        if (!Snapresponse)
+        {
+            this.error('_getNewSnapshotUrl() -> Capture_snap ->', 'failed create new snapshot');
+            throw new Error('No image url available');
+        }
+        var url_s = await Homey.app.GetCamera(this.getData().id);
+        if (!url_s)
+        {
+            this.error('_getNewSnapshotUrl() -> GetCamera ->', 'failed get url from new snapshot');
+            throw new Error('No image url available');
+        }
+        return url_s.thumbnail;
+    }
+
+    /**
+     * Method that registers a snapshot image and calls setCameraImage.
+     * @private
+     */
+    async _registerSnapshotImage() {
+        this._snapshotImage = new Homey.Image();
+
+        // Set stream, this method is called when image.update() is called
+        this._snapshotImage.setStream(async (stream) => {
+            // get AuthToken
+            const authtoken = await Homey.app.GetAuthToken();
+            // First generate new snapshot
+            const url = await this._getNewSnapshotUrl();
+            this.log('_registerSnapshotImage() -> setStream ->', url);
+
+            if (!url) {
+                this.error('_registerSnapshotImage() -> setStream ->', 'failed no image url available');
+                throw new Error('No image url available');
+            }
+
+            //
+            const fullUrl = "https://rest.prde.immedia-semi.com/" + url + ".jpg"
+
+            const headers = {
+                "TOKEN_AUTH": authtoken,
+                "Host": "prde.immedia-semi.com",
+                "Content-Type": "application/json"
+            };
+
+            const options = {
+                method: "GET",
+                headers: headers
+            };
+
+            // Fetch image from url and pipe
+            const res = await fetch(fullUrl, options);
+            if (!res.ok) {
+                this.error('_registerSnapshotImage() -> setStream -> failed', res.statusText);
+                throw new Error('Could not fetch image');
+            }
+
+            this.log('_registerSnapshotImage() -> setStream ->', "https://rest.prde.immedia-semi.com/" + url + ".jpg");
+
+            res.body.pipe(stream);
+        });
+
+        // Register and set camera iamge
+        return this._snapshotImage.register()
+            .then(() => this.log('_registerSnapshotImage() -> registered'))
+            .then(() => this.setCameraImage('snapshot', 'Snapshot', this._snapshotImage))
+            .catch(this.error);
     }
 
 }
