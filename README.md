@@ -34,3 +34,9 @@ Lessen API calls
 
 **V0.1.3**
 Bugfixes
+
+**V0.1.4**
+Add support for new camera support and new Blink API
+
+**V0.1.5**
+Bugfixes for snapshot created image flow

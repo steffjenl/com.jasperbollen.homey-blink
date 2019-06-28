@@ -19,7 +19,7 @@
     "small":"/assets/images/small.jpg"
   },
   "category": ["security"],
-  "version": "0.1.3",
+  "version": "0.1.5",
   "compatibility": ">=2.2.0",
   "author": {
     "name": "Stèphan Eizinga",
@@ -47,15 +47,6 @@
       "getable": true,
       "setable": false
     },
-    "clip_length": {
-      "type": "number",
-      "title": {
-        "en": "Clip length",
-        "nl": "Clip lengte"
-      },
-      "getable": true,
-      "setable": false
-    },
     "last_vid": {
       "type": "number",
       "title": {
@@ -79,7 +70,7 @@
     {
       "id": "BlinkIndoorCamera",
       "class": "camera",
-      "capabilities": [ "onoff", "wifi_signal", "battery_state", "clip_length", "last_vid", "measure_temperature" ],
+      "capabilities": [ "onoff", "wifi_signal", "battery_state", "last_vid", "measure_temperature" ],
       "name": {
         "en": "Blink indoor camera",
         "nl": "Blink indoor camera"
@@ -92,12 +83,11 @@
           },
           {
             "id": "sensor",
-            "capabilities": [ "measure_temperature", "wifi_signal", "battery_state", "clip_length" ],
+            "capabilities": [ "measure_temperature", "wifi_signal", "battery_state" ],
             "options": {
               "icons": {
                 "wifi_signal": "/drivers/BlinkIndoorCamera/assets/images/wifi_signal.svg",
-                "battery_state": "/drivers/BlinkIndoorCamera/assets/images/battery_state.svg",
-                "clip_length": "/drivers/BlinkIndoorCamera/assets/images/clip_length.svg"
+                "battery_state": "/drivers/BlinkIndoorCamera/assets/images/battery_state.svg"
               }
             }
           }

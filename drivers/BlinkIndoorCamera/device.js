@@ -68,28 +68,59 @@ class BlinkCamera extends Homey.Device {
     }
 
     async onFlowCardCapture_snap() {
-      var imageGrabbed = new Homey.FlowCardTriggerDevice('snapshot_created')
+        const imageGrabbed = new Homey.FlowCardTriggerDevice('snapshot_created')
           .register()
           .registerRunListener((args, state) => {
 
               return Promise.resolve(true);
 
           })
-        var Snap = await Homey.app.Capture_snap(this.getData().id);
-        //Wait for image to be taken
-        var sleep = await this.sleep(9000);
-        //Get url of image
-        var url_s = await Homey.app.GetCamera(this.getData().id);
-        var url = url_s.thumbnail;
-        var device = this.getName();
-        //Get the image
-        var imgbody = await Homey.app.GetImg(url);
+
+        const parent = this;
+        const device = this.getName();
 
         //console.log(MyImage);
         let myImage = new Homey.Image('jpg');
 
-        //myImage.setPath('/userdata/image.jpg');
-        myImage.setStream(imgbody);
+        // Set stream, this method is called when image.update() is called
+        myImage.setStream(async (stream) => {
+            // get AuthToken
+            const authtoken = await Homey.app.GetAuthToken();
+            // First generate new snapshot
+            const url = await this._getNewSnapshotUrl();
+            this.log('onFlowCardCapture_snap() -> setStream ->', url);
+
+            if (!url) {
+                this.error('onFlowCardCapture_snap() -> setStream ->', 'failed no image url available');
+                throw new Error('No image url available');
+            }
+
+            //
+            const fullUrl = "https://rest.prde.immedia-semi.com/" + url + ".jpg"
+
+            const headers = {
+                "TOKEN_AUTH": authtoken,
+                "Host": "prde.immedia-semi.com",
+                "Content-Type": "application/json"
+            };
+
+            const options = {
+                method: "GET",
+                headers: headers
+            };
+
+            // Fetch image from url and pipe
+            const res = await fetch(fullUrl, options);
+            if (!res.ok) {
+                this.error('onFlowCardCapture_snap() -> setStream -> failed', res.statusText);
+                throw new Error('Could not fetch image');
+            }
+
+            this.log('onFlowCardCapture_snap() -> setStream ->', "https://rest.prde.immedia-semi.com/" + url + ".jpg");
+
+            res.body.pipe(stream);
+        });
+
         myImage.register()
             .then(() => {
 
@@ -103,7 +134,7 @@ class BlinkCamera extends Homey.Device {
                     .register()
                     .then(() => {
                         myImageToken.setValue(myImage)
-                            .then(console.log('setValue'))
+                            .then(parent.log('setValue'))
                     })
 
                 // trigger a Flow
@@ -112,7 +143,7 @@ class BlinkCamera extends Homey.Device {
                         image: myImage,
                         device: device
                     })
-                    .then(console.log("Image grabbed"))
+                    .then(parent.log("Image grabbed"))
                     .catch(this.error)
             })
         return true;
@@ -161,14 +192,12 @@ class BlinkCamera extends Homey.Device {
 
 
         let battery_state_value = Camerainfo.battery_state;
-        //let clip_length_value = Camerainfo.video_length;
 
         //Set Capabilities
         this.setCapabilityValue("onoff", onoff_value);
         this.setCapabilityValue("measure_temperature", measure_temperature_value);
         this.setCapabilityValue("wifi_signal", wifi_signal_value);
         this.setCapabilityValue("battery_state", battery_state_value);
-        //this.setCapabilityValue("clip_length", clip_length_value);
 
 
         this.log('device has been updated');
@@ -219,11 +248,14 @@ class BlinkCamera extends Homey.Device {
     async _registerSnapshotImage() {
         this._snapshotImage = new Homey.Image();
 
+        this.log('_registerSnapshotImage()');
+
         // Set stream, this method is called when image.update() is called
         this._snapshotImage.setStream(async (stream) => {
             // get AuthToken
             const authtoken = await Homey.app.GetAuthToken();
             // First generate new snapshot
+            this.log('_registerSnapshotImage() -> setStream -> Capture_snap');
             const url = await this._getNewSnapshotUrl();
             this.log('_registerSnapshotImage() -> setStream ->', url);
 
