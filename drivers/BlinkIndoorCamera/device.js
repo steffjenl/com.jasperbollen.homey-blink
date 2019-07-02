@@ -203,17 +203,15 @@ class BlinkCamera extends Homey.Device {
         this.log('device has been updated');
     }
 
-    MotionDetected(DateString) {
+    async MotionDetected(DateString) {
         let Event_date = DateString;
         let Current_date = this.getCapabilityValue("last_vid");
         //Check if the event date is newer
         if (Event_date > Current_date) {
             console.log("new motion detected on camera: " + this.getData().id);
             this.setCapabilityValue("last_vid", Event_date);
-            this.startMotionTrigger();
-            this.onFlowCardCapture_snap();
-            // Register images
-            this._registerSnapshotImage();
+            await this.onFlowCardCapture_snap();
+            await this.startMotionTrigger();
         }
     }
 
@@ -232,6 +230,7 @@ class BlinkCamera extends Homey.Device {
             this.error('_getNewSnapshotUrl() -> Capture_snap ->', 'failed create new snapshot');
             throw new Error('No image url available');
         }
+
         var url_s = await Homey.app.GetCamera(this.getData().id);
         if (!url_s)
         {
