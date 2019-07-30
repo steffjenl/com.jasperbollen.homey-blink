@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/tmsns/homey-json-schema/master/schema.json",
-  "id": "nl.steffjenl.homey-blink",
+  "id": "com.jasperbollen.homey-blink",
   "sdk": 2,
   "name": {
     "en": "Blink Camera's",
