@@ -43,3 +43,6 @@ Bugfixes for snapshot created image flow
 
 **V0.1.6**
 Added alarm_motion capabilitie, when motion is detected the motion will be true. Not tested yet!
+
+**V0.1.7**
+Added support for multple networks (zones)

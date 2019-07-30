@@ -167,16 +167,16 @@ class BlinkCamera extends Homey.Device {
     }
 
     async updateDevice() {
-        let Camerainfo = await Homey.app.GetCamera(this.getData().id);
-        //console.log(Camerainfo);
+        this.log('Camera: ' + this.getData().id);
+        let Camerainfo = await Homey.app.GetCamera(this.getData().id).catch(this.error);
 
         //Get values
-        let temp = Camerainfo.temp;
+        let temp = Camerainfo.signals.temp;
         let measure_temperature_value = (temp - 32) * 5 / 9;
 
-        let onoff_value = Camerainfo.armed; //not correct yet, should contain the "arm/not armed network status"
+        let onoff_value = Camerainfo.enabled; //not correct yet, should contain the "arm/not armed network status"
 
-        let wifi_strength = Camerainfo.wifi_strength;
+        let wifi_strength = Camerainfo.signals.wifi;
         let wifi_signal_value = "Very poor";
         if (wifi_strength === 5) {
             wifi_signal_value = "Very good";
@@ -190,14 +190,25 @@ class BlinkCamera extends Homey.Device {
             wifi_signal_value = "Very poor";
         }
 
-
-        let battery_state_value = Camerainfo.battery_state;
+        let battery_state = Camerainfo.signals.battery;
+        let battery_state_value = "Very poor";
+        if (battery_state === 5) {
+            battery_state_value = "Very good";
+        } else if (battery_state === 4) {
+            battery_state_value = "Good";
+        } else if (battery_state === 3) {
+            battery_state_value = "Ok";
+        } else if (battery_state === 2) {
+            battery_state_value = "Poor";
+        } else if (battery_state === 1) {
+            battery_state_value = "Very poor";
+        }
 
         //Set Capabilities
-        this.setCapabilityValue("onoff", onoff_value);
-        this.setCapabilityValue("measure_temperature", measure_temperature_value);
-        this.setCapabilityValue("wifi_signal", wifi_signal_value);
-        this.setCapabilityValue("battery_state", battery_state_value);
+        this.setCapabilityValue("onoff", onoff_value).catch(this.error);
+        this.setCapabilityValue("measure_temperature", measure_temperature_value).catch(this.error);
+        this.setCapabilityValue("wifi_signal", wifi_signal_value).catch(this.error);
+        this.setCapabilityValue("battery_state", battery_state_value).catch(this.error);
 
         this.log('device has been updated');
     }
@@ -208,7 +219,7 @@ class BlinkCamera extends Homey.Device {
         //Check if the event date is newer
         if (Event_date > Current_date) {
             console.log("new motion detected on camera: " + this.getData().id);
-            this.setCapabilityValue("last_vid", Event_date);
+            this.setCapabilityValue("last_vid", Event_date).catch(this.error);
             this.setCapabilityValue('alarm_motion', true).catch(this.error);
             await this.onFlowCardCapture_snap();
             await this.startMotionTrigger();
