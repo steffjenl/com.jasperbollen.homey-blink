@@ -3,12 +3,12 @@
   "id": "com.jasperbollen.homey-blink",
   "sdk": 2,
   "name": {
-    "en": "Blink Camera's",
-    "nl": "Blink Camera's"
-  },
-  "description": {
     "en": "Blink",
     "nl": "Blink"
+  },
+  "description": {
+    "en": "Blink Camera's",
+    "nl": "Blink Camera's"
   },
   "tags":{
     "en": ["Blink","Camera","Secutiy"],
