@@ -199,7 +199,6 @@ class BlinkCamera extends Homey.Device {
         this.setCapabilityValue("wifi_signal", wifi_signal_value);
         this.setCapabilityValue("battery_state", battery_state_value);
 
-
         this.log('device has been updated');
     }
 
@@ -210,8 +209,13 @@ class BlinkCamera extends Homey.Device {
         if (Event_date > Current_date) {
             console.log("new motion detected on camera: " + this.getData().id);
             this.setCapabilityValue("last_vid", Event_date);
+            this.setCapabilityValue('alarm_motion', true).catch(this.error);
             await this.onFlowCardCapture_snap();
             await this.startMotionTrigger();
+        }
+        else
+        {
+            this.setCapabilityValue('alarm_motion', false).catch(this.error);
         }
     }
 

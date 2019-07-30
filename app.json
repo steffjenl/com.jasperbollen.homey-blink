@@ -19,7 +19,7 @@
     "small":"/assets/images/small.jpg"
   },
   "category": ["security"],
-  "version": "0.1.5",
+  "version": "0.1.6",
   "compatibility": ">=2.2.0",
   "author": {
     "name": "Stèphan Eizinga",
@@ -70,7 +70,7 @@
     {
       "id": "BlinkIndoorCamera",
       "class": "camera",
-      "capabilities": [ "onoff", "wifi_signal", "battery_state", "last_vid", "measure_temperature" ],
+      "capabilities": [ "onoff", "wifi_signal", "battery_state", "last_vid", "measure_temperature", "alarm_motion" ],
       "name": {
         "en": "Blink indoor camera",
         "nl": "Blink indoor camera"

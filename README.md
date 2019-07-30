@@ -40,3 +40,6 @@ Add support for new camera support and new Blink API
 
 **V0.1.5**
 Bugfixes for snapshot created image flow
+
+**V0.1.6**
+Added alarm_motion capabilitie, when motion is detected the motion will be true. Not tested yet!
