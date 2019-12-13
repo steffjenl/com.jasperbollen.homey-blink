@@ -26,23 +26,27 @@ Afterwards, you can add your Blink Camera's to Homey.
 
 ## Version History
 **v0.1.0**
-Initial Release
+* Initial Release
 
 **V0.1.2**
-Added snapshot functionality
-Lessen API calls
+* Added snapshot functionality
+* Lessen API calls
 
 **V0.1.3**
-Bugfixes
+* Bugfixes
 
 **V0.1.4**
-Add support for new camera support and new Blink API
+* Add support for new camera support and new Blink API
 
 **V0.1.5**
-Bugfixes for snapshot created image flow
+* Bugfix for snapshot created image flow
 
 **V0.1.6**
-Added alarm_motion capabilitie, when motion is detected the motion will be true. Not tested yet!
+* Added alarm_motion capability, when motion is detected the motion will be true. Not tested yet!
 
 **V0.1.7**
-Added support for multple networks (zones)
+* Added support for multiple networks (zones)
+
+**V0.1.8**
+* Bugfix imagetoken already exists message
+* Bugfix servers region other then prde is now supported

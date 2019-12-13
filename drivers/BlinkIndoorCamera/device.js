@@ -86,6 +86,7 @@ class BlinkCamera extends Homey.Device {
         myImage.setStream(async (stream) => {
             // get AuthToken
             const authtoken = await Homey.app.GetAuthToken();
+            const regionCode = await Homey.app.GetRegion();
             // First generate new snapshot
             const url = await this._getNewSnapshotUrl();
             this.log('onFlowCardCapture_snap() -> setStream ->', url);
@@ -96,11 +97,11 @@ class BlinkCamera extends Homey.Device {
             }
 
             //
-            const fullUrl = "https://rest.prde.immedia-semi.com/" + url + ".jpg"
+            const fullUrl = "https://rest." + regionCode + ".immedia-semi.com/" + url + ".jpg"
 
             const headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": "prde.immedia-semi.com",
+                "Host": regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
@@ -116,7 +117,7 @@ class BlinkCamera extends Homey.Device {
                 throw new Error('Could not fetch image');
             }
 
-            this.log('onFlowCardCapture_snap() -> setStream ->', "https://rest.prde.immedia-semi.com/" + url + ".jpg");
+            this.log('onFlowCardCapture_snap() -> setStream ->', "https://rest." + regionCode + ".immedia-semi.com/" + url + ".jpg");
 
             res.body.pipe(stream);
         });
@@ -124,8 +125,9 @@ class BlinkCamera extends Homey.Device {
         myImage.register()
             .then(() => {
 
+                // ' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
                 // create a token & register it
-                let myImageToken = new Homey.FlowToken('image', {
+                let myImageToken = new Homey.FlowToken('image-' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15), {
                     type: 'image',
                     title: 'Image'
                 })
@@ -136,6 +138,7 @@ class BlinkCamera extends Homey.Device {
                         myImageToken.setValue(myImage)
                             .then(parent.log('setValue'))
                     })
+                    .catch(this.error)
 
                 // trigger a Flow
                 imageGrabbed
@@ -268,6 +271,7 @@ class BlinkCamera extends Homey.Device {
         this._snapshotImage.setStream(async (stream) => {
             // get AuthToken
             const authtoken = await Homey.app.GetAuthToken();
+            const regionCode = await Homey.app.GetRegion();
             // First generate new snapshot
             this.log('_registerSnapshotImage() -> setStream -> Capture_snap');
             const url = await this._getNewSnapshotUrl();
@@ -279,11 +283,11 @@ class BlinkCamera extends Homey.Device {
             }
 
             //
-            const fullUrl = "https://rest.prde.immedia-semi.com/" + url + ".jpg"
+            const fullUrl = "https://rest." + regionCode + ".immedia-semi.com/" + url + ".jpg"
 
             const headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": "prde.immedia-semi.com",
+                "Host": regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
@@ -299,7 +303,7 @@ class BlinkCamera extends Homey.Device {
                 throw new Error('Could not fetch image');
             }
 
-            this.log('_registerSnapshotImage() -> setStream ->', "https://rest.prde.immedia-semi.com/" + url + ".jpg");
+            this.log('_registerSnapshotImage() -> setStream ->', "https://rest." + regionCode + ".immedia-semi.com/" + url + ".jpg");
 
             res.body.pipe(stream);
         });

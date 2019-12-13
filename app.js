@@ -71,13 +71,15 @@ class BlinkApp extends Homey.App {
                     var jsonData = JSON.parse(body);
                     var authtoken = jsonData.authtoken.authtoken;
                     var accountId = jsonData.account.id;
+                    var regionCode = Object.keys(jsonData.region)[0];
                     if (authtoken == null || authtoken == "") {
                         reject("Token not in response: " + body);
                     } else {
                         //Store authtoken in ManagerSettings
-                        parent.log("storing authtoken");
+                        parent.log("storing authtoken and region");
                         Homey.ManagerSettings.set('authtoken', authtoken);
                         Homey.ManagerSettings.set('accountId', accountId);
+                        Homey.ManagerSettings.set('region', regionCode);
                         fulfill(authtoken);
                     }
                 }
@@ -102,8 +104,6 @@ class BlinkApp extends Homey.App {
           fulfill(authtoken);
           });
       }
-
-
     }
 
     async GetAccountId(){
@@ -121,19 +121,36 @@ class BlinkApp extends Homey.App {
         }
     }
 
+    async GetRegion(){
+        let region =  Homey.ManagerSettings.get('region');
+        const parent = this;
+
+        if (!region){
+            return new Promise(function(fulfill, reject) {
+                fulfill(region);
+            });
+        }
+        else{
+            return new Promise(function(fulfill, reject) {
+                fulfill(region);
+            });
+        }
+    }
+
     //Get info about sync network
     async GetNetworks() {
         var authtoken = await this.GetAuthToken();
+        var regionCode = await this.GetRegion();
         return new Promise(function(fulfill, reject) {
 
             var headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": "prde.immedia-semi.com",
+                "Host": regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
             var options = {
-                url: "https://rest.prde.immedia-semi.com/networks",
+                url: "https://rest." + regionCode + ".immedia-semi.com/networks",
                 headers: headers
             };
 
@@ -159,16 +176,17 @@ class BlinkApp extends Homey.App {
     //Get info as displayed on Homescreen
     async GetHomescreen(CameraID) {
         var authtoken = await this.GetAuthToken();
+        var regionCode = await this.GetRegion();
         return new Promise(function(fulfill, reject) {
 
             var headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": "prde.immedia-semi.com",
+                "Host": regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
             var options = {
-                url: "https://rest.prde.immedia-semi.com/homescreen",
+                url: "https://rest." + regionCode + ".immedia-semi.com/homescreen",
                 headers: headers
             };
 
@@ -196,15 +214,16 @@ class BlinkApp extends Homey.App {
     async LatestVideo() {
         var authtoken = await this.GetAuthToken();
         var accountId = await this.GetAccountId();
+        var regionCode = await this.GetRegion();
         return new Promise(function(fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": "prde.immedia-semi.com",
+                "Host": regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
             var options = {
-                url: "https://rest.prde.immedia-semi.com/api/v1/accounts/" + accountId + "/media/changed?since=2011-06-23&page=0",
+                url: "https://rest." + regionCode + ".immedia-semi.com/api/v1/accounts/" + accountId + "/media/changed?since=2011-06-23&page=0",
                 method: "GET",
                 headers: headers
             };
@@ -232,17 +251,18 @@ class BlinkApp extends Homey.App {
     //Get Events's
     async GetEvents() {
         var authtoken = await this.GetAuthToken();
+        var regionCode = await this.GetRegion();
         var networkID = await this.GetNetworks();
         var networkID = networkID.id;
         return new Promise(function(fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": "prde.immedia-semi.com",
+                "Host": regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
             var options = {
-                url: "https://rest.prde.immedia-semi.com/events/network/" + networkID,
+                url: "https://rest." + regionCode + ".immedia-semi.com/events/network/" + networkID,
                 method: "GET",
                 headers: headers
             };
@@ -268,15 +288,16 @@ class BlinkApp extends Homey.App {
     async GetCameras() {
         var authtoken = await this.GetAuthToken();
         var accountId = await this.GetAccountId();
+        var regionCode = await this.GetRegion();
         return new Promise(function(fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": "prde.immedia-semi.com",
+                "Host": regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
             var options = {
-                url: "https://rest.prde.immedia-semi.com/api/v3/accounts/" + accountId + "/homescreen",
+                url: "https://rest." + regionCode + ".immedia-semi.com/api/v3/accounts/" + accountId + "/homescreen",
                 method: "GET",
                 headers: headers
             };
@@ -319,15 +340,16 @@ class BlinkApp extends Homey.App {
     async GetCamera(CameraID) {
         var authtoken = await this.GetAuthToken();
         var accountId = await this.GetAccountId();
+        var regionCode = await this.GetRegion();
         return new Promise(function(fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": "prde.immedia-semi.com",
+                "Host": regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
             var options = {
-                url: "https://rest.prde.immedia-semi.com/api/v3/accounts/" + accountId + "/homescreen",
+                url: "https://rest." + regionCode + ".immedia-semi.com/api/v3/accounts/" + accountId + "/homescreen",
                 method: "GET",
                 headers: headers
             };
@@ -373,17 +395,18 @@ class BlinkApp extends Homey.App {
     async EnableMotion(CameraID) {
         var authtoken = await this.GetAuthToken();
         var networkID = await this.GetNetworks();
+        var regionCode = await this.GetRegion();
         var networkID = networkID.id;
         var cameraID = CameraID;
         return new Promise(function(fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": "rest.prde.immedia-semi.com",
+                "Host": "rest." + regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
             var options = {
-                url: "https://rest.prde.immedia-semi.com/network/" + networkID + "/camera/" + cameraID + "/enable",
+                url: "https://rest." + regionCode + ".immedia-semi.com/network/" + networkID + "/camera/" + cameraID + "/enable",
                 method: "POST",
                 headers: headers
             };
@@ -408,17 +431,18 @@ class BlinkApp extends Homey.App {
     async DisableMotion(CameraID) {
         var authtoken = await this.GetAuthToken();
         var networkID = await this.GetNetworks();
+        var regionCode = await this.GetRegion();
         var networkID = networkID.id;
         var cameraID = CameraID;
         return new Promise(function(fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": "rest.prde.immedia-semi.com",
+                "Host": "rest." + regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
             var options = {
-                url: "https://rest.prde.immedia-semi.com/network/" + networkID + "/camera/" + cameraID + "/disable",
+                url: "https://rest." + regionCode + ".immedia-semi.com/network/" + networkID + "/camera/" + cameraID + "/disable",
                 method: "POST",
                 headers: headers
             };
@@ -443,16 +467,17 @@ class BlinkApp extends Homey.App {
     async Disarm() {
         var authtoken = await this.GetAuthToken();
         var networkID = await this.GetNetworks();
+        var regionCode = await this.GetRegion();
         var networkID = networkID.id;
         return new Promise(function(fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": "rest.prde.immedia-semi.com",
+                "Host": "rest." + regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
             var options = {
-                url: "https://rest.prde.immedia-semi.com/network/" + networkID + "/disarm",
+                url: "https://rest." + regionCode + ".immedia-semi.com/network/" + networkID + "/disarm",
                 method: "POST",
                 headers: headers
             };
@@ -479,16 +504,17 @@ class BlinkApp extends Homey.App {
     async Arm() {
         var authtoken = await this.GetAuthToken();
         var networkID = await this.GetNetworks();
+        var regionCode = await this.GetRegion();
         var networkID = networkID.id;
         return new Promise(function(fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": "rest.prde.immedia-semi.com",
+                "Host": "rest." + regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
             var options = {
-                url: "https://rest.prde.immedia-semi.com/network/" + networkID + "/arm",
+                url: "https://rest." + regionCode + ".immedia-semi.com/network/" + networkID + "/arm",
                 method: "POST",
                 headers: headers
             };
@@ -513,17 +539,18 @@ class BlinkApp extends Homey.App {
     async Capture_vid(CamID) {
         var authtoken = await this.GetAuthToken();
         var networkID = await this.GetNetworks();
+        var regionCode = await this.GetRegion();
         var networkID = networkID.id;
         var Camera = CamID;
         return new Promise(function(fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": "rest.prde.immedia-semi.com",
+                "Host": "rest." + regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
             var options = {
-                url: "https://rest.prde.immedia-semi.com/network/" + networkID + "/camera/" + Camera + "/clip",
+                url: "https://rest." + regionCode + ".immedia-semi.com/network/" + networkID + "/camera/" + Camera + "/clip",
                 method: "POST",
                 headers: headers
             };
@@ -548,17 +575,18 @@ class BlinkApp extends Homey.App {
     async Capture_snap(CamID) {
         var authtoken = await this.GetAuthToken();
         var networkID = await this.GetNetworks();
+        var regionCode = await this.GetRegion();
         var networkID = networkID.id;
         var Camera = CamID;
         return new Promise(function(fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": "rest.prde.immedia-semi.com",
+                "Host": "rest." + regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
             var options = {
-                url: "https://rest.prde.immedia-semi.com/network/" + networkID + "/camera/" + Camera + "/thumbnail",
+                url: "https://rest." + regionCode + ".immedia-semi.com/network/" + networkID + "/camera/" + Camera + "/thumbnail",
                 method: "POST",
                 headers: headers
             };
@@ -582,15 +610,16 @@ class BlinkApp extends Homey.App {
     //GetImage
     async GetImg(url) {
         var authtoken = await this.GetAuthToken();
+        var regionCode = await this.GetRegion();
         return new Promise(function(fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": "prde.immedia-semi.com",
+                "Host": regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
             var options = {
-                url: "https://rest.prde.immedia-semi.com/" + url + ".jpg",
+                url: "https://rest." + regionCode + ".immedia-semi.com/" + url + ".jpg",
                 method: "GET",
                 encoding: null,
                 headers: headers
@@ -637,11 +666,12 @@ class BlinkApp extends Homey.App {
     async ChangeCamSetting(CameraID, Setting, Value) {
         var authtoken = await this.GetAuthToken();
         var networkID = await this.GetNetworks();
+        var regionCode = await this.GetRegion();
         var networkID = networkID.id;
         return new Promise(function(fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": "prde.immedia-semi.com",
+                "Host":  regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
@@ -649,7 +679,7 @@ class BlinkApp extends Homey.App {
             var updateBody = "{ \"" + Setting + "\" : \"" + Value + "\", \"client_specifier\" : \"iPhone 9.2 | 2.2 | 222\" }";
 
             var options = {
-                url: "https://rest.prde.immedia-semi.com/network/" + networkID + "/camera/" + CameraID + "/update",
+                url: "https://rest." + regionCode + ".immedia-semi.com/network/" + networkID + "/camera/" + CameraID + "/update",
                 method: "POST",
                 headers: headers,
                 body: updateBody

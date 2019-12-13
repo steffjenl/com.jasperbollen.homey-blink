@@ -1,6 +1,6 @@
 {
   "name": "com.jasperbollen.homey-blink",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Control your Blink Camera's using Athom's Homey.",
   "main": "app.js",
   "dependencies": {
