@@ -3,16 +3,39 @@
 const Homey = require('homey');
 const request = require('request');
 const Promise = require('promise');
+const Blink = require('node-blink-security');
 
 class BlinkApp extends Homey.App {
 
 
+    getBlink() {
+        let username = Homey.ManagerSettings.get('BlinkUsername');
+        let password = Homey.ManagerSettings.get('BlinkPassword');
+        if (username == null) {
+            console.log("No username has been set");
+            return false;
+        }
+
+        var blink = new Blink(username, password);
+        var connected = false;
+
+        blink.setupSystem()
+            .then(() => {
+                connected = true;
+            }, (error) => {
+                console.log(error);
+            });
+
+        if (connected) {
+            return blink;
+        }
+    }
+
     async onInit() {
         this.log('App is running...');
-        this.GetToken();
-        this.CheckMotion();
-        this.MotionLoop();
-        this.RefreshAuthToken();
+        this.checkBlinkMotion();
+        //this.CheckMotion();
+        //this.MotionLoop();
 
         let ArmNetwork = new Homey.FlowCardAction('arm_network');
         ArmNetwork
@@ -34,6 +57,35 @@ class BlinkApp extends Homey.App {
                 return true;
 
             })
+    }
+
+    async checkBlinkMotion()
+    {
+        var blink = this.getBlink();
+
+        if (blink !== false) {
+            blink.getIDs()
+                .then(() => {
+                    // see the object dump for details
+                    console.log(blink);
+                });
+        }
+
+    }
+
+    async setBlinkArm()
+    {
+        var blink = this.getBlink()
+        blink.setupSystem()
+            .then(() => {
+                blink.getLastMotions()
+                    .then(() => {
+                        // see the object dump for details
+                        console.log(blink);
+                    });
+            }, (error) => {
+                console.log(error);
+            });
     }
 
 
