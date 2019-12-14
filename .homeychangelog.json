@@ -1,5 +1,8 @@
 {
   "0.1.8": {
     "en": "Bugfix imagetoken already exists message"
+  },
+  "0.1.9": {
+    "en": "Bugfix added sleep between create snapshot and sending snapshot to Homey. Blink servers has an delay of 5 seconds."
   }
 }

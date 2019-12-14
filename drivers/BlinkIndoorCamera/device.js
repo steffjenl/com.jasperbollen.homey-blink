@@ -249,6 +249,9 @@ class BlinkCamera extends Homey.Device {
             throw new Error('No image url available');
         }
 
+        // whait 5 seconds befause getting new snapshot url, Blink servers are not that fast!
+        await this.sleep(5000);
+
         var url_s = await Homey.app.GetCamera(this.getData().id);
         if (!url_s)
         {
