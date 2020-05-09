@@ -5,6 +5,7 @@
   "main": "app.js",
   "dependencies": {
     "async": "^2.6.2",
+    "homey": "^2.3.3",
     "node-fetch": "^2.6.0",
     "promise": "^8.0.3",
     "request": "^2.88.0"

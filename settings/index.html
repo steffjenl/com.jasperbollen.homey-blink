@@ -10,9 +10,13 @@
     <script type="text/javascript">
         function onHomeyReady(Homey) {
             Homey.ready();
-            var usernameElement = document.getElementById('username');
-            var passwordElement = document.getElementById('password');
-            var saveElement = document.getElementById('save');
+            const usernameElement = document.getElementById('username');
+            const passwordElement = document.getElementById('password');
+            const pincodeElement = document.getElementById('pincode');
+            const saveElement = document.getElementById('save');
+            const fieldSetCredentials = document.getElementById('fieldSetCredentials');
+            const fieldSetPincode = document.getElementById('fieldSetPincode');
+            fieldSetPincode.style="display:none";
 
             Homey.get('BlinkUsername', function(err, username) {
                 if (err) return Homey.alert(err);
@@ -26,43 +30,89 @@
 
             saveElement.addEventListener('click', function(e) {
 
-                Homey.set('BlinkUsername', usernameElement.value, function(err) {
-                    if (err) return Homey.alert(err);
-                });
-                Homey.set('BlinkPassword', passwordElement.value, function(err) {
-                    if (err) return Homey.alert(err);
-                });
+                if (pincodeElement && pincodeElement.value) {
+                    Homey.api('POST', '/settings/validate/pincode', {
+                        'pinCode': pincodeElement.value,
+                    }, function (err, result) {
+                        if (err) {
+                            return Homey.alert('Invalid pincode');
+                        }
+                        Homey.set('BlinkUsername', usernameElement.value, function(err) {
+                            if (err) return Homey.alert(err);
+                        });
+                        Homey.set('BlinkPassword', passwordElement.value, function(err) {
+                            if (err) return Homey.alert(err);
+                        });
 
-                Homey.alert('Credentials saved');
-
+                        Homey.alert('Credentials saved');
+                        fieldSetPincode.style="display:none";
+                        fieldSetCredentials.style="";
+                    });
+                }
+                else {
+                    Homey.api('POST', '/settings/validate', {
+                        'username': usernameElement.value,
+                        'password': passwordElement.value,
+                    }, function (err, result) {
+                        if (err) {
+                            return Homey.alert('Invalid login credentials');
+                        }
+                        if (result.client.verification_required) {
+                            fieldSetPincode.style="";
+                            fieldSetCredentials.style="display:none";
+                            Homey.set('BlinkUsername', usernameElement.value, function (err) {
+                                if (err) return Homey.alert(err);
+                            });
+                            Homey.set('BlinkPassword', passwordElement.value, function (err) {
+                                if (err) return Homey.alert(err);
+                            });
+                            return Homey.alert('Pincode send to your e-mail');
+                        }
+                        else {
+                            Homey.set('BlinkUsername', usernameElement.value, function (err) {
+                                if (err) return Homey.alert(err);
+                            });
+                            Homey.set('BlinkPassword', passwordElement.value, function (err) {
+                                if (err) return Homey.alert(err);
+                            });
+                            Homey.alert('Credentials saved');
+                        }
+                    });
+                }
             });
         }
     </script>
-
 </head>
-
 <body>
 
 
 
     <h1>Blink Camera's</h1>
-    <p>Set your Blink username and Password </p>
+    <p>Set your Blink Username and Password </p>
     <p></p>
 
 
-    <fieldset>
+    <fieldset id="fieldSetCredentials">
         <legend>Login Credentials</legend>
 
-        <div class="field row">
+        <div class="field row" id="usernameRow">
             <label for="Username">Username</label>
             <input id="username" type="text" value="" />
         </div>
-        <div class="field row">
+        <div class="field row" id="passwordRow">
             <label for="Password">Password</label>
             <input id="password" type="Password" value="" />
         </div>
 
+    </fieldset>
 
+    <fieldset id="fieldSetPincode">
+        <legend>Pincode (2FA)</legend>
+
+        <div class="field row" id="pincodeRow">
+            <label for="Pincode">Pincode</label>
+            <input id="pincode" type="text" value="" />
+        </div>
 
     </fieldset>
 

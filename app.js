@@ -3,14 +3,24 @@
 const Homey = require('homey');
 const request = require('request');
 const Promise = require('promise');
+const BlinkAPI = require('./lib/blinkapi');
 
 class BlinkApp extends Homey.App {
 
 
     async onInit() {
+
+        this.api = new BlinkAPI();
+        if (!Homey.ManagerSettings.get('BlinkUid')) {
+            Homey.ManagerSettings.set('BlinkUid', this.api.generate_uid(16))
+        }
+        if (!Homey.ManagerSettings.get('BlinkNotificationKey')) {
+            Homey.ManagerSettings.set('BlinkNotificationKey', this.api.generate_uid(152))
+        }
+
         this.log('App is running...');
-        this.GetToken();
-        this.CheckMotion();
+        this.GetToken().catch(error => this.error(error));
+        await this.CheckMotion();
         this.MotionLoop();
         this.RefreshAuthToken();
 
@@ -36,102 +46,79 @@ class BlinkApp extends Homey.App {
             })
     }
 
+    getBlinkUid() {
+        return Homey.ManagerSettings.get('BlinkUid');
+    }
+
+    getBlinkNotificationKey() {
+        return Homey.ManagerSettings.get('BlinkNotificationKey');
+    }
+
 
     //Login
     GetToken() {
-        const parent = this;
-
-        return new Promise(function(fulfill, reject) {
-            var headers = {
-                "Host": "prod.immedia-semi.com",
-                "Content-Type": "application/json"
-            };
+        return new Promise((resolve, reject) => {
             let username = Homey.ManagerSettings.get('BlinkUsername');
             let password = Homey.ManagerSettings.get('BlinkPassword');
-            if(username == null){
-              console.log("No username has been set");
+            let uid = Homey.ManagerSettings.get('BlinkUid');
+            let notificationKey = Homey.ManagerSettings.get('BlinkNotificationKey');
+
+            if (username == null) {
+                this.log("No username has been set");
+            } else {
+               this.api.login(username, password, uid, notificationKey).then(data => {
+                   const authtoken = data.authtoken.authtoken;
+                   const accountId = data.account.id;
+                   const regionCode = data.region.tier;
+                   Homey.ManagerSettings.set('authtoken', authtoken);
+                   Homey.ManagerSettings.set('accountId', accountId);
+                   Homey.ManagerSettings.set('region', regionCode);
+                   return resolve(data);
+               }).catch(error => reject(error));
             }
-            else{
-              //console.log("username: "+username);
-            var loginBody = "{ \"password\" : \"" + password + "\", \"client_specifier\" : \"iPhone 9.2 | 2.2 | 222\", \"email\" : \"" + username + "\" }";
-
-            var options = {
-                url: "https://rest.prod.immedia-semi.com/login",
-                method: "POST",
-                headers: headers,
-                body: loginBody
-            };
-
-            request(options, function(err, res, body) {
-                if (err) {
-                    reject("Request Error: " + err);
-                } else if (res.statusCode !== 200) {
-                    reject("API Response not valid: " + body);
-                } else {
-                    var jsonData = JSON.parse(body);
-                    var authtoken = jsonData.authtoken.authtoken;
-                    var accountId = jsonData.account.id;
-                    var regionCode = Object.keys(jsonData.region)[0];
-                    if (authtoken == null || authtoken == "") {
-                        reject("Token not in response: " + body);
-                    } else {
-                        //Store authtoken in ManagerSettings
-                        parent.log("storing authtoken and region");
-                        Homey.ManagerSettings.set('authtoken', authtoken);
-                        Homey.ManagerSettings.set('accountId', accountId);
-                        Homey.ManagerSettings.set('region', regionCode);
-                        fulfill(authtoken);
-                    }
-                }
-            });
-
-          }
         });
     }
 
-    async GetAuthToken(){
-      let authtoken =  Homey.ManagerSettings.get('authtoken');
-      const parent = this;
-
-      if (!authtoken){
-        return new Promise(function(fulfill, reject) {
-            authtoken =  parent.GetToken();
-            fulfill(authtoken);
-          });
-      }
-      else{
-        return new Promise(function(fulfill, reject) {
-          fulfill(authtoken);
-          });
-      }
-    }
-
-    async GetAccountId(){
-        let accountId =  Homey.ManagerSettings.get('accountId');
-
-        if (!accountId){
-            return new Promise(function(fulfill, reject) {
-                fulfill(accountId);
-            });
-        }
-        else{
-            return new Promise(function(fulfill, reject) {
-                fulfill(accountId);
-            });
-        }
-    }
-
-    async GetRegion(){
-        let region =  Homey.ManagerSettings.get('region');
+    async GetAuthToken() {
+        let authtoken = Homey.ManagerSettings.get('authtoken');
         const parent = this;
 
-        if (!region){
-            return new Promise(function(fulfill, reject) {
-                fulfill(region);
+        if (!authtoken) {
+            return new Promise(function (fulfill, reject) {
+                authtoken = parent.GetToken();
+                fulfill(authtoken);
+            });
+        } else {
+            return new Promise(function (fulfill, reject) {
+                fulfill(authtoken);
             });
         }
-        else{
-            return new Promise(function(fulfill, reject) {
+    }
+
+    async GetAccountId() {
+        let accountId = Homey.ManagerSettings.get('accountId');
+
+        if (!accountId) {
+            return new Promise(function (fulfill, reject) {
+                fulfill(accountId);
+            });
+        } else {
+            return new Promise(function (fulfill, reject) {
+                fulfill(accountId);
+            });
+        }
+    }
+
+    async GetRegion() {
+        let region = Homey.ManagerSettings.get('region');
+        const parent = this;
+
+        if (!region) {
+            return new Promise(function (fulfill, reject) {
+                fulfill(region);
+            });
+        } else {
+            return new Promise(function (fulfill, reject) {
                 fulfill(region);
             });
         }
@@ -141,7 +128,7 @@ class BlinkApp extends Homey.App {
     async GetNetworks() {
         var authtoken = await this.GetAuthToken();
         var regionCode = await this.GetRegion();
-        return new Promise(function(fulfill, reject) {
+        return new Promise(function (fulfill, reject) {
 
             var headers = {
                 "TOKEN_AUTH": authtoken,
@@ -154,7 +141,7 @@ class BlinkApp extends Homey.App {
                 headers: headers
             };
 
-            request(options, function(err, res, body) {
+            request(options, function (err, res, body) {
                 if (err) {
                     reject("Request Error: " + err);
                 } else if (res.statusCode !== 200) {
@@ -177,7 +164,7 @@ class BlinkApp extends Homey.App {
     async GetHomescreen(CameraID) {
         var authtoken = await this.GetAuthToken();
         var regionCode = await this.GetRegion();
-        return new Promise(function(fulfill, reject) {
+        return new Promise(function (fulfill, reject) {
 
             var headers = {
                 "TOKEN_AUTH": authtoken,
@@ -190,7 +177,7 @@ class BlinkApp extends Homey.App {
                 headers: headers
             };
 
-            request(options, function(err, res, body) {
+            request(options, function (err, res, body) {
                 if (err) {
                     reject("Request Error: " + err);
                 } else if (res.statusCode !== 200) {
@@ -215,7 +202,7 @@ class BlinkApp extends Homey.App {
         var authtoken = await this.GetAuthToken();
         var accountId = await this.GetAccountId();
         var regionCode = await this.GetRegion();
-        return new Promise(function(fulfill, reject) {
+        return new Promise(function (fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
                 "Host": regionCode + ".immedia-semi.com",
@@ -227,13 +214,13 @@ class BlinkApp extends Homey.App {
                 method: "GET",
                 headers: headers
             };
-            request(options, function(err, res, body) {
+            request(options, function (err, res, body) {
                 if (err) {
                     reject("Request Error: " + err);
-                    console.log("Error in request: "+err);
+                    console.log("Error in request: " + err);
                 } else if (res.statusCode !== 200) {
                     reject("LatestVideo API Response not valid: " + body);
-                    console.log("Error in return: "+body);
+                    console.log("Error in return: " + body);
                 } else {
                     var latestvideo = JSON.parse(body);
                     var latestvideo = latestvideo.media[0];
@@ -254,7 +241,7 @@ class BlinkApp extends Homey.App {
         var regionCode = await this.GetRegion();
         var networkID = await this.GetNetworks();
         var networkID = networkID.id;
-        return new Promise(function(fulfill, reject) {
+        return new Promise(function (fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
                 "Host": regionCode + ".immedia-semi.com",
@@ -266,7 +253,7 @@ class BlinkApp extends Homey.App {
                 method: "GET",
                 headers: headers
             };
-            request(options, function(err, res, body) {
+            request(options, function (err, res, body) {
                 if (err) {
                     reject("Request Error: " + err);
                 } else if (res.statusCode !== 200) {
@@ -289,7 +276,7 @@ class BlinkApp extends Homey.App {
         var authtoken = await this.GetAuthToken();
         var accountId = await this.GetAccountId();
         var regionCode = await this.GetRegion();
-        return new Promise(function(fulfill, reject) {
+        return new Promise(function (fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
                 "Host": regionCode + ".immedia-semi.com",
@@ -301,7 +288,7 @@ class BlinkApp extends Homey.App {
                 method: "GET",
                 headers: headers
             };
-            request(options, function(err, res, body) {
+            request(options, function (err, res, body) {
                 if (err) {
                     reject("Request Error: " + err);
                 } else if (res.statusCode !== 200) {
@@ -341,7 +328,7 @@ class BlinkApp extends Homey.App {
         var authtoken = await this.GetAuthToken();
         var accountId = await this.GetAccountId();
         var regionCode = await this.GetRegion();
-        return new Promise(function(fulfill, reject) {
+        return new Promise(function (fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
                 "Host": regionCode + ".immedia-semi.com",
@@ -353,7 +340,7 @@ class BlinkApp extends Homey.App {
                 method: "GET",
                 headers: headers
             };
-            request(options, function(err, res, body) {
+            request(options, function (err, res, body) {
                 if (err) {
                     reject("Request Error: " + err);
                 } else if (res.statusCode !== 200) {
@@ -382,8 +369,7 @@ class BlinkApp extends Homey.App {
                             }
                         }
                     }
-                    if (!cameraFound)
-                    {
+                    if (!cameraFound) {
                         reject("Camera not found: " + body);
                     }
                 }
@@ -398,7 +384,7 @@ class BlinkApp extends Homey.App {
         var regionCode = await this.GetRegion();
         var networkID = networkID.id;
         var cameraID = CameraID;
-        return new Promise(function(fulfill, reject) {
+        return new Promise(function (fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
                 "Host": "rest." + regionCode + ".immedia-semi.com",
@@ -410,7 +396,7 @@ class BlinkApp extends Homey.App {
                 method: "POST",
                 headers: headers
             };
-            request(options, function(err, res, body) {
+            request(options, function (err, res, body) {
                 if (err) {
                     reject("Request Error: " + err);
                 } else if (res.statusCode !== 200) {
@@ -434,7 +420,7 @@ class BlinkApp extends Homey.App {
         var regionCode = await this.GetRegion();
         var networkID = networkID.id;
         var cameraID = CameraID;
-        return new Promise(function(fulfill, reject) {
+        return new Promise(function (fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
                 "Host": "rest." + regionCode + ".immedia-semi.com",
@@ -446,7 +432,7 @@ class BlinkApp extends Homey.App {
                 method: "POST",
                 headers: headers
             };
-            request(options, function(err, res, body) {
+            request(options, function (err, res, body) {
                 if (err) {
                     reject("Request Error: " + err);
                 } else if (res.statusCode !== 200) {
@@ -469,7 +455,7 @@ class BlinkApp extends Homey.App {
         var networkID = await this.GetNetworks();
         var regionCode = await this.GetRegion();
         var networkID = networkID.id;
-        return new Promise(function(fulfill, reject) {
+        return new Promise(function (fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
                 "Host": "rest." + regionCode + ".immedia-semi.com",
@@ -481,7 +467,7 @@ class BlinkApp extends Homey.App {
                 method: "POST",
                 headers: headers
             };
-            request(options, function(err, res, body) {
+            request(options, function (err, res, body) {
                 if (err) {
                     reject("Request Error: " + err);
                     //console.log(err);
@@ -506,7 +492,7 @@ class BlinkApp extends Homey.App {
         var networkID = await this.GetNetworks();
         var regionCode = await this.GetRegion();
         var networkID = networkID.id;
-        return new Promise(function(fulfill, reject) {
+        return new Promise(function (fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
                 "Host": "rest." + regionCode + ".immedia-semi.com",
@@ -518,7 +504,7 @@ class BlinkApp extends Homey.App {
                 method: "POST",
                 headers: headers
             };
-            request(options, function(err, res, body) {
+            request(options, function (err, res, body) {
                 if (err) {
                     reject("Request Error: " + err);
                 } else if (res.statusCode !== 200) {
@@ -542,7 +528,7 @@ class BlinkApp extends Homey.App {
         var regionCode = await this.GetRegion();
         var networkID = networkID.id;
         var Camera = CamID;
-        return new Promise(function(fulfill, reject) {
+        return new Promise(function (fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
                 "Host": "rest." + regionCode + ".immedia-semi.com",
@@ -554,7 +540,7 @@ class BlinkApp extends Homey.App {
                 method: "POST",
                 headers: headers
             };
-            request(options, function(err, res, body) {
+            request(options, function (err, res, body) {
                 if (err) {
                     reject("Request Error: " + err);
                 } else if (res.statusCode !== 200) {
@@ -578,7 +564,7 @@ class BlinkApp extends Homey.App {
         var regionCode = await this.GetRegion();
         var networkID = networkID.id;
         var Camera = CamID;
-        return new Promise(function(fulfill, reject) {
+        return new Promise(function (fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
                 "Host": "rest." + regionCode + ".immedia-semi.com",
@@ -590,7 +576,7 @@ class BlinkApp extends Homey.App {
                 method: "POST",
                 headers: headers
             };
-            request(options, function(err, res, body) {
+            request(options, function (err, res, body) {
                 if (err) {
                     reject("Request Error: " + err);
                 } else if (res.statusCode !== 200) {
@@ -611,7 +597,7 @@ class BlinkApp extends Homey.App {
     async GetImg(url) {
         var authtoken = await this.GetAuthToken();
         var regionCode = await this.GetRegion();
-        return new Promise(function(fulfill, reject) {
+        return new Promise(function (fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
                 "Host": regionCode + ".immedia-semi.com",
@@ -624,13 +610,13 @@ class BlinkApp extends Homey.App {
                 encoding: null,
                 headers: headers
             };
-            request(options, function(err, res, body) {
+            request(options, function (err, res, body) {
                 if (err) {
                     reject("Request Error: " + err);
-                    console.log("Error in request: "+err);
+                    console.log("Error in request: " + err);
                 } else if (res.statusCode !== 200) {
                     reject("API Response not valid: " + body);
-                    console.log("Error in return: "+body);
+                    console.log("Error in return: " + body);
                 } else {
                     var MyImage = body;
                     if (MyImage == null) {
@@ -668,10 +654,10 @@ class BlinkApp extends Homey.App {
         var networkID = await this.GetNetworks();
         var regionCode = await this.GetRegion();
         var networkID = networkID.id;
-        return new Promise(function(fulfill, reject) {
+        return new Promise(function (fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host":  regionCode + ".immedia-semi.com",
+                "Host": regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
@@ -684,7 +670,7 @@ class BlinkApp extends Homey.App {
                 headers: headers,
                 body: updateBody
             };
-            request(options, function(err, res, body) {
+            request(options, function (err, res, body) {
                 if (err) {
                     reject("Request Error: " + err);
                 } else if (res.statusCode !== 200) {
@@ -711,11 +697,10 @@ class BlinkApp extends Homey.App {
 
     RefreshAuthToken() {
         setInterval(() => {
-            this.GetToken();
-            console.log("A new authtoken has been requested");
+            this.GetToken().catch(error => this.error(error));
+            this.log("A new authtoken has been requested");
         }, 43200000);
     }
-
 
 
 }
