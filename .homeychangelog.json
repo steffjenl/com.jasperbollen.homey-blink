@@ -4,5 +4,14 @@
   },
   "0.1.9": {
     "en": "Bugfix added sleep between create snapshot and sending snapshot to Homey. Blink servers has an delay of 5 seconds."
+  },
+  "0.2.1": {
+    "en": "Added support for 2FA"
+  },
+  "0.2.2": {
+    "en": "Fixed bug when entering pincode"
+  },
+  "0.2.3": {
+    "en": "Removed changelog from readme and markdown formatting."
   }
 }

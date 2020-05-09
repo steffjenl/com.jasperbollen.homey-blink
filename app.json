@@ -10,32 +10,49 @@
     "en": "Blink Camera's",
     "nl": "Blink Camera's"
   },
-  "tags":{
-    "en": ["Blink","Camera","Secutiy"],
-    "nl": ["Blink","Camera","Secutiy"]
+  "tags": {
+    "en": [
+      "Blink",
+      "Camera",
+      "Secutiy"
+    ],
+    "nl": [
+      "Blink",
+      "Camera",
+      "Secutiy"
+    ]
   },
-  "images":{
-    "large":"/assets/images/large.jpg",
-    "small":"/assets/images/small.jpg"
+  "images": {
+    "large": "/assets/images/large.jpg",
+    "small": "/assets/images/small.jpg"
   },
-  "category": ["security"],
-  "version": "0.1.9",
+  "category": [
+    "security"
+  ],
+  "version": "0.2.3",
   "compatibility": ">=2.2.0",
   "author": {
     "name": "Stèphan Eizinga",
     "email": "stephan@monkeysoft.nl"
   },
-  "contributing":{
+  "contributors": {
     "developers": [
-      {
-        "name": "Jasper Bollen",
-        "email": "jasperbollen@gmail.com"
-      },
       {
         "name": "Stèphan Eizinga",
         "email": "stephan@monkeysoft.nl"
+      },
+      {
+        "name": "Jasper Bollen",
+        "email": "jasperbollen@gmail.com"
       }
     ]
+  },
+  "contributing": {
+    "donate": {
+      "paypal": {
+        "username": "steffjenl"
+      }
+    }
   },
   "capabilities": {
     "wifi_signal": {
@@ -70,7 +87,14 @@
     {
       "id": "BlinkIndoorCamera",
       "class": "camera",
-      "capabilities": [ "onoff", "wifi_signal", "battery_state", "last_vid", "measure_temperature", "alarm_motion" ],
+      "capabilities": [
+        "onoff",
+        "wifi_signal",
+        "battery_state",
+        "last_vid",
+        "measure_temperature",
+        "alarm_motion"
+      ],
       "name": {
         "en": "Blink indoor camera",
         "nl": "Blink indoor camera"
@@ -79,11 +103,17 @@
         "components": [
           {
             "id": "icon",
-            "capabilities": [ "onoff" ]
+            "capabilities": [
+              "onoff"
+            ]
           },
           {
             "id": "sensor",
-            "capabilities": [ "measure_temperature", "wifi_signal", "battery_state" ],
+            "capabilities": [
+              "measure_temperature",
+              "wifi_signal",
+              "battery_state"
+            ],
             "options": {
               "icons": {
                 "wifi_signal": "/drivers/BlinkIndoorCamera/assets/images/wifi_signal.svg",
@@ -91,7 +121,6 @@
               }
             }
           }
-
         ]
       },
       "images": {
@@ -102,7 +131,9 @@
         {
           "id": "list_devices",
           "template": "list_devices",
-          "navigation": { "next": "add_devices" }
+          "navigation": {
+            "next": "add_devices"
+          }
         },
         {
           "id": "add_devices",
@@ -133,7 +164,7 @@
           "en": "A snapshot was created",
           "nl": "Er is een snapshot gemaakt"
         },
-        "tokens":[
+        "tokens": [
           {
             "name": "image",
             "title": {
@@ -146,8 +177,8 @@
             "title": {
               "en": "device"
             },
-            "example":{
-              "en":"Camera"
+            "example": {
+              "en": "Camera"
             },
             "type": "string"
           }
@@ -234,4 +265,4 @@
       }
     ]
   }
-  }
+}
