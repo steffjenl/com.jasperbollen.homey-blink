@@ -101,7 +101,7 @@ class BlinkCamera extends Homey.Device {
 
             const headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": regionCode + ".immedia-semi.com",
+                "Host": "rest." . regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
@@ -290,7 +290,7 @@ class BlinkCamera extends Homey.Device {
 
             const headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": regionCode + ".immedia-semi.com",
+                "Host": "rest." . regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 

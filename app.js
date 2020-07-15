@@ -132,7 +132,7 @@ class BlinkApp extends Homey.App {
 
             var headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": regionCode + ".immedia-semi.com",
+                "Host": "rest." . regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
@@ -168,7 +168,7 @@ class BlinkApp extends Homey.App {
 
             var headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": regionCode + ".immedia-semi.com",
+                "Host": "rest." . regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
@@ -205,7 +205,7 @@ class BlinkApp extends Homey.App {
         return new Promise(function (fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": regionCode + ".immedia-semi.com",
+                "Host": "rest." . regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
@@ -244,7 +244,7 @@ class BlinkApp extends Homey.App {
         return new Promise(function (fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": regionCode + ".immedia-semi.com",
+                "Host": "rest." . regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
@@ -279,7 +279,7 @@ class BlinkApp extends Homey.App {
         return new Promise(function (fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": regionCode + ".immedia-semi.com",
+                "Host": "rest." . regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
@@ -331,7 +331,7 @@ class BlinkApp extends Homey.App {
         return new Promise(function (fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": regionCode + ".immedia-semi.com",
+                "Host": "rest." . regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
@@ -600,7 +600,7 @@ class BlinkApp extends Homey.App {
         return new Promise(function (fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": regionCode + ".immedia-semi.com",
+                "Host": "rest." . regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
@@ -657,7 +657,7 @@ class BlinkApp extends Homey.App {
         return new Promise(function (fulfill, reject) {
             var headers = {
                 "TOKEN_AUTH": authtoken,
-                "Host": regionCode + ".immedia-semi.com",
+                "Host": "rest." . regionCode + ".immedia-semi.com",
                 "Content-Type": "application/json"
             };
 
