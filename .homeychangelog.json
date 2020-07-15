@@ -13,5 +13,8 @@
   },
   "0.2.3": {
     "en": "Removed changelog from readme and markdown formatting."
+  },
+  "0.2.4": {
+    "en": "Amazon api servers required an full hostname and sni."
   }
 }
