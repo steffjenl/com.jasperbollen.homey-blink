@@ -6,6 +6,8 @@ const Homey = require('homey');
 class BlinkDriver extends Homey.Driver {
 
     onInit() {
+        this.api = Homey.app.api;
+
         new Homey.FlowCardAction('turn_on')
             .register()
             .registerRunListener(args => args.IndoorCamera_on.onFlowCardIndoorCamera_on());
@@ -20,14 +22,33 @@ class BlinkDriver extends Homey.Driver {
 
         new Homey.FlowCardAction('Capture_snapshot')
             .register()
-            .registerRunListener(args => args.Capture_snap.onFlowCardCapture_snap());
+            .registerRunListener(args => args.Capture_snap.onFlowCardCapture_snap().catch(error => this.error(error)));
 
+        let ArmNetwork = new Homey.FlowCardAction('arm_network');
+        ArmNetwork
+            .register()
+            .registerRunListener((args, state) => {
+                Homey.app.Arm().catch(error => this.error(error));
+                return true;
+            });
+
+        let DisArmNetwork = new Homey.FlowCardAction('disarm_network');
+        DisArmNetwork
+            .register()
+            .registerRunListener((args, state) => {
+                Homey.app.Disarm().catch(error => this.error(error));
+                return true;
+            });
+
+        this.log('Camera driver initialized.');
     }
 
-
-    async onPairListDevices(data, callback) {
-        let devices = await Homey.app.GetCameras();
-        callback(null, devices);
+    onPair(socket) {
+        // Perform when device list is shown
+        socket.on('list_devices', async (data, callback) => {
+            console.log('list_devices');
+            callback(null, await Homey.app.GetCameras().catch(error => this.error(error)));
+        });
     }
 
     ParseTriggerData(DeviceIDp, DateString) {
@@ -36,10 +57,6 @@ class BlinkDriver extends Homey.Driver {
         });
         if (Object.prototype.hasOwnProperty.call(device, '_events')) {
             device.MotionDetected(DateString);
-        }
-        else{
-          console.log("Unknown device: " +DeviceIDp);
-          //device.MotionDetected(DateString);
         }
     }
 

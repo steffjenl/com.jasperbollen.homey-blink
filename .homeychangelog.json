@@ -16,5 +16,11 @@
   },
   "0.2.4": {
     "en": "Amazon api servers required an full hostname and sni."
+  },
+  "0.2.5": {
+    "en": "Probaly fix for arm/disarm and changed amazon api host"
+  },
+  "0.3.0": {
+    "en": "Remove request package and replace with https package. Fixed SSL bug."
   }
 }
