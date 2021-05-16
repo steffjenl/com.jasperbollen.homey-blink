@@ -57,7 +57,7 @@
                         if (err) {
                             return Homey.alert('Invalid login credentials');
                         }
-                        if (result.client.verification_required) {
+                        if (result.account.client_verification_required) {
                             fieldSetPincode.style="";
                             fieldSetCredentials.style="display:none";
                             Homey.set('BlinkUsername', usernameElement.value, function (err) {
@@ -66,7 +66,7 @@
                             Homey.set('BlinkPassword', passwordElement.value, function (err) {
                                 if (err) return Homey.alert(err);
                             });
-                            return Homey.alert('Pincode send to your e-mail');
+                            return Homey.alert('Pincode send to your e-mail or phone');
                         }
                         else {
                             Homey.set('BlinkUsername', usernameElement.value, function (err) {

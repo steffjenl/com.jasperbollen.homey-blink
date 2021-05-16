@@ -29,7 +29,7 @@
   "category": [
     "security"
   ],
-  "version": "0.3.0",
+  "version": "1.0.5",
   "compatibility": ">=2.2.0",
   "author": {
     "name": "Stèphan Eizinga",
@@ -84,6 +84,35 @@
     }
   },
   "drivers": [
+    {
+      "id": "BlinkMiniCamera",
+      "class": "camera",
+      "capabilities": [
+        "last_vid",
+        "alarm_motion"
+      ],
+      "name": {
+        "en": "Blink Mini camera",
+        "nl": "Blink Mini camera"
+      },
+      "images": {
+        "large": "/drivers/BlinkMiniCamera/assets/images/large.png",
+        "small": "/drivers/BlinkMiniCamera/assets/images/small.png"
+      },
+      "pair": [
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ]
+    },
     {
       "id": "BlinkIndoorCamera",
       "class": "camera",

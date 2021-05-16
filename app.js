@@ -17,7 +17,7 @@ class BlinkApp extends Homey.App {
         }
 
         // Enable remote debugging, if applicable
-        if (Homey.env.DEBUG) {
+        if (Homey.env.DEBUG === "true") {
             // eslint-disable-next-line global-require
             require('inspector').open(9229, '0.0.0.0');
         }
@@ -68,9 +68,9 @@ class BlinkApp extends Homey.App {
                 this.log("No username has been set");
             } else {
                this.api.login(username, password, uid, notificationKey).then(data => {
-                   const authtoken = data.authtoken.authtoken;
+                   const authtoken = data.auth.token;
                    const accountId = data.account.id;
-                   const regionCode = data.region.tier;
+                   const regionCode = data.account.tier;
                    Homey.ManagerSettings.set('authtoken', authtoken);
                    Homey.ManagerSettings.set('accountId', accountId);
                    Homey.ManagerSettings.set('region', regionCode);
@@ -247,6 +247,82 @@ class BlinkApp extends Homey.App {
         });
     }
 
+    GetOwls() {
+        // const accountId = Homey.app.GetAccountId().catch(error => this.error(error));
+        const accountId = Homey.ManagerSettings.get('accountId');
+        return new Promise(function (resolve, reject) {
+
+            let endpoint = "/api/v3/accounts/" + accountId + "/homescreen";
+            Homey.app.api._get(endpoint, null, false).then(response => {
+                const result = JSON.parse(response);
+                if (result == null) {
+                    reject("Error during deserialization: " + result);
+                } else {
+                    var devices = [];
+                    var networks = [];
+                    for (var i = 0; i < result.networks.length; i++) {
+                        networks[result.networks[i].id] = result.networks[i].name;
+                    }
+                    for (var i = 0; i < result.owls.length; i++) {
+                        let device_list = result.owls[i];
+                        //if (device_list.device_type !== 'camera') continue;
+                        //console.log(device_list);
+                        var device = {
+                            "name": device_list.name + ' (' + networks[device_list.network_id] + ')',
+                            "data": {
+                                "id": device_list.id
+                            }
+                        }
+                        devices.push(device);
+                    }
+                    resolve(devices);
+                }
+            }).catch(error => reject(error));
+        });
+    }
+
+    //Get Owl info
+    GetOwl(CameraID) {
+        const accountId = Homey.ManagerSettings.get('accountId');
+        return new Promise(function (resolve, reject) {
+
+            let endpoint = "/api/v3/accounts/" + accountId + "/homescreen";
+            Homey.app.api._get(endpoint, null, false).then(response => {
+                const result = JSON.parse(response);
+                if (result == null) {
+                    reject("Error during deserialization: " + result);
+                } else {
+                    let cameraFound = false;
+                    if (result == null) {
+                        resolve(body);
+                    } else {
+                        let networkNames = [];
+                        let networkArmed = []
+                        for (var i = 0; i < result.networks.length; i++) {
+                            networkNames[result.networks[i].id] = result.networks[i].name;
+                            networkArmed[result.networks[i].id] = result.networks[i].armed;
+                        }
+
+                        for (var i = 0; i < result.owls.length; i++) {
+                            let Camera_info = result.owls[i];
+                            //if (Camera_info.device_type !== 'camera') continue;
+                            if (CameraID === Camera_info.id) {
+                                cameraFound = true;
+                                Camera_info.armed = networkArmed[Camera_info.network_id];
+                                Camera_info.network_name = networkNames[Camera_info.network_id];
+                                resolve(Camera_info);
+                            }
+                        }
+                    }
+                    if (!cameraFound) {
+                        reject("Camera not found: " + response);
+                    }
+                    resolve();
+                }
+            }).catch(error => reject(error));
+        });
+    }
+
     //Enable Motion for cam
     EnableMotion(cameraID) {
         const self = this;
@@ -381,6 +457,31 @@ class BlinkApp extends Homey.App {
                 }
 
                 let endpoint = "/network/" + networkID + "/camera/" + Camera + "/thumbnail";
+                Homey.app.api._post(endpoint, payload).then(response => {
+                    const result = JSON.parse(response);
+                    if (result == null) {
+                        reject("Error during deserialization: " + response);
+                    } else {
+                        self.log('Created snapshot for camera ' + Camera);
+                        resolve();
+                    }
+                }).catch(error => reject(error));
+            }).catch(error => reject(error));
+        });
+    }
+
+    //Capture a snapshot
+    CaptureOwl_snap(Camera) {
+        const self = this;
+        return new Promise(function (resolve, reject) {
+            const networks = self.GetNetworks().then(networks => {
+                const networkID = networks.id;
+
+                const payload = {
+
+                }
+
+                let endpoint = "/api/v1/accounts/" + Homey.app.api._account.id +"/networks/" + networkID + "/owls/" + Camera + "/thumbnail";
                 Homey.app.api._post(endpoint, payload).then(response => {
                     const result = JSON.parse(response);
                     if (result == null) {

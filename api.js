@@ -11,6 +11,7 @@ module.exports = [
             Api.login(jsonData.username, jsonData.password, Homey.app.getBlinkUid(), Homey.app.getBlinkNotificationKey()).then(result => {
                 return callback(null, result);
             }).catch(error => {
+                console.log(error);
                 callback(error)
             });
         },
@@ -24,6 +25,7 @@ module.exports = [
             Api.verfy(jsonData.pinCode).then(result => {
                 return callback(null, result);
             }).catch(error => {
+                Homey.app.log(error);
                 callback(error)
             });
         },
