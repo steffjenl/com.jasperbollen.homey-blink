@@ -29,7 +29,7 @@
   "category": [
     "security"
   ],
-  "version": "1.0.5",
+  "version": "1.0.6",
   "compatibility": ">=2.2.0",
   "author": {
     "name": "Stèphan Eizinga",

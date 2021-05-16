@@ -37,5 +37,8 @@
   },
   "1.0.5": {
     "en": "Add support for Blink Mini cam"
+  },
+  "1.0.6": {
+    "en": "Fixing Blink V5 API problems"
   }
 }
