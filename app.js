@@ -69,7 +69,7 @@ class BlinkApp extends Homey.App {
             } else {
                this.api.login(username, password, uid, notificationKey).then(data => {
                    const authtoken = data.auth.token;
-                   const accountId = data.account.id;
+                   const accountId = data.account.account_id;
                    const regionCode = data.account.tier;
                    Homey.ManagerSettings.set('authtoken', authtoken);
                    Homey.ManagerSettings.set('accountId', accountId);
