@@ -141,7 +141,11 @@ class BlinkCamera extends Homey.Device {
                             image: snapshotImage,
                             device: self.getName()
                         })
-                        .then(self.log("Image grabbed"))
+                        //.then(self.log("Image grabbed"))
+                        .then(() => {
+                            self.log("Image grabbed");
+                            resolve();
+                        })
                         .catch(self.error)
                 })
         }).catch(error => self.error(error));
@@ -225,9 +229,14 @@ class BlinkCamera extends Homey.Device {
         if (Event_date > Current_date) {
             Homey.app.log("new motion detected on camera: " + this.getData().id);
             this.setCapabilityValue("last_vid", Event_date).catch(this.error);
-            this.setCapabilityValue('alarm_motion', true).catch(this.error);
-            await this.onFlowCardCapture_snap();
-            await this.startMotionTrigger();
+            await this.onFlowCardCapture_snap()
+                .then(() => {
+                    this.setCapabilityValue('alarm_motion', true).catch(this.error);
+                    this.startMotionTrigger();
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
         } else {
             this.setCapabilityValue('alarm_motion', false).catch(this.error);
         }
@@ -256,6 +265,21 @@ class BlinkCamera extends Homey.Device {
                 }).catch(error => reject(error));
 
             //}).catch(error => reject(error));
+
+            // TEST: Call Capture_snap waiting for promise-result
+            // Homey.app.Capture_snap(self.getData().id)
+            //     .then(() => {
+            //         //self.device.sleep(2500).then(sleep => {
+            //         Homey.app.GetCamera(self.getData().id).then(response => {
+            //             if (!response) {
+            //                 reject('_getNewSnapshotUrl() -> GetCamera ->', 'failed get url from new snapshot');
+            //             }
+            //             resolve(response.thumbnail);
+            //         }).catch(error => reject(error));
+            //     })
+            //         //}).catch(error => reject(error));
+            //     .catch(error => reject('_getNewSnapshotUrl() -> Capture_snap -> failed create new snapshot -> ' + error));
+
         });
     }
 
