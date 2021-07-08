@@ -148,7 +148,8 @@ class BlinkApp extends Homey.App {
 
     //Get latest video
     LatestVideo() {
-        var accountId = this.GetAccountId().catch(error => this.error(error));
+        // var accountId = this.GetAccountId().catch(error => this.error(error));
+        const accountId = Homey.ManagerSettings.get('accountId');
         return new Promise(function (resolve, reject) {
 
             const payload = {
@@ -157,7 +158,7 @@ class BlinkApp extends Homey.App {
             }
 
             let endpoint = "/api/v1/accounts/" + accountId + "/media/changed";
-            Homey.app.api._get(endpoint, payload).then(response => {
+            Homey.app.api._get(endpoint, payload, false).then(response => {
                 const result = JSON.parse(response);
                 const latestvideo = result.media[0];
                 if (latestvideo == null) {
@@ -496,23 +497,54 @@ class BlinkApp extends Homey.App {
     }
 
     //Update settings for motion detection
+    // CheckMotion() {
+    //     return new Promise((resolve, reject) => {
+    //         //Get Last Motion
+    //         let vid = this.LatestVideo().catch(error => reject(error));;
+    //         //Save motion info
+    //         if (typeof vid !== "undefined") {
+    //             let EventDate = Date.parse(vid.updated_at);
+    //
+    //             //TEST
+    //             console.log("CheckMotion:");
+    //             console.log("vid:");
+    //             console.log(vid);
+    //             console.log("vid.updated_at:" + vid.updated_at);
+    //             console.log("EventDate: " + EventDate);
+    //             //TEST
+    //
+    //             let EventCamID = vid.device_id;
+    //
+    //             Homey.ManagerDrivers.getDriver('BlinkIndoorCamera').ParseTriggerData(EventCamID, EventDate);
+    //         } else {
+    //             let EventDate = Date.parse("01-01-1900");
+    //             let EventCamID = "00000";
+    //
+    //             Homey.ManagerDrivers.getDriver('BlinkIndoorCamera').ParseTriggerData(EventCamID, EventDate);
+    //         }
+    //         resolve(vid);
+    //     });
+    // }
     CheckMotion() {
         return new Promise((resolve, reject) => {
             //Get Last Motion
-            let vid = this.LatestVideo().catch(error => reject(error));;
-            //Save motion info
-            if (typeof vid !== "undefined") {
-                let EventDate = Date.parse(vid.updated_at);
-                let EventCamID = vid.device_id;
+            this.LatestVideo()
+                .then((vid) => {
+                    //Save motion info
+                    if (typeof vid !== "undefined") {
+                        let EventDate = Date.parse(vid.updated_at);
+                        let EventCamID = vid.device_id;
 
-                Homey.ManagerDrivers.getDriver('BlinkIndoorCamera').ParseTriggerData(EventCamID, EventDate);
-            } else {
-                let EventDate = Date.parse("01-01-1900");
-                let EventCamID = "00000";
+                        Homey.ManagerDrivers.getDriver('BlinkIndoorCamera').ParseTriggerData(EventCamID, EventDate);
+                    } else {
+                        let EventDate = Date.parse("01-01-1900");
+                        let EventCamID = "00000";
 
-                Homey.ManagerDrivers.getDriver('BlinkIndoorCamera').ParseTriggerData(EventCamID, EventDate);
-            }
-            resolve(vid);
+                        Homey.ManagerDrivers.getDriver('BlinkIndoorCamera').ParseTriggerData(EventCamID, EventDate);
+                    }
+                    resolve(vid);
+                })
+                .catch(error => reject(error));
         });
     }
 
