@@ -282,7 +282,12 @@ class BlinkCamera extends Homey.Device {
                     const fullUrl = "https://rest-" + regionCode + ".immedia-semi.com" + url + ".jpg";
                     //
                     const headers = {
-                        "TOKEN_AUTH": authtoken
+                        "TOKEN_AUTH": authtoken,
+                        "Accept": "image/jpeg",
+                        "Accept-Encoding": "gzip, deflate, br",
+                        "Content-type": "image/jpeg",
+                        "User-Agent": "PostmanRuntime/7.26.8",
+                        "Cache-Control": "no-cache"
                     };
 
                     const options = {
