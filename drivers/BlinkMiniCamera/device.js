@@ -120,7 +120,13 @@ class BlinkCamera extends Homey.Device {
                     self.log(headers);
 
                     res.body.pipe(stream);
-                }).catch(error => reject(error));
+                })
+                .catch((error) => {
+                    self.log("onFlowCardCapture_snap() -> _getNewSnapshotUrl() error: "+error)
+                    self.log("Close the stream to prevent the app waiting for timeout.");
+                    stream.end();
+                    //throw new Error('Camera is busy');
+                });
             });
 
             snapshotImage.register()
@@ -147,7 +153,11 @@ class BlinkCamera extends Homey.Device {
                             image: snapshotImage,
                             device: self.getName()
                         })
-                        .then(self.log("Image grabbed"))
+                        //.then(self.log("Image grabbed"))
+                        .then(() => {
+                            self.log("Image grabbed");
+                            resolve();
+                        })
                         .catch(self.error)
                 })
         }).catch(error => self.error(error));
@@ -177,7 +187,7 @@ class BlinkCamera extends Homey.Device {
                 if (Camerainfo == null) {
                     reject("Error during deserialization: " + Camerainfo);
                 } else {
-                    Homey.app.log(Camerainfo);
+                    //Homey.app.log(Camerainfo);
                     resolve(camera);
                 }
 
@@ -192,9 +202,17 @@ class BlinkCamera extends Homey.Device {
         if (Event_date > Current_date) {
             Homey.app.log("new motion detected on camera: " + this.getData().id);
             this.setCapabilityValue("last_vid", Event_date).catch(this.error);
-            this.setCapabilityValue('alarm_motion', true).catch(this.error);
-            await this.onFlowCardCapture_snap();
-            await this.startMotionTrigger();
+            // this.setCapabilityValue('alarm_motion', true).catch(this.error);
+            // await this.onFlowCardCapture_snap();
+            // this.startMotionTrigger();
+            await this.onFlowCardCapture_snap()
+                .then(() => {
+                    this.setCapabilityValue('alarm_motion', true).catch(this.error);
+                    this.startMotionTrigger();
+                })
+                .catch((error) => {
+                    self.log('MotionDetected() -> onFlowCardCapture_snap error: '+error);
+                });
         } else {
             this.setCapabilityValue('alarm_motion', false).catch(this.error);
         }
@@ -211,19 +229,109 @@ class BlinkCamera extends Homey.Device {
     _getNewSnapshotUrl() {
         const self = this;
         return new Promise(function (resolve, reject) {
-            Homey.app.CaptureOwl_snap(self.getData().id).catch(error => reject('_getNewSnapshotUrl() -> CaptureOwl_snap -> failed create new snapshot -> ' + error));
+            /**
+             * 10-try retrival of camera image with wait time of 1 sec between
+             * 1) Read old snapshot URL
+             * 2) Call the Blink API to generate a snapshot
+             * 3) Try to get a new (different) snapshot URL
+             * 4a) Take the new URL to read the image
+             * 4b) If no new URL is available, a exceptiomn in thrown to show an error 
+             *      in Homey app and clear the stream/image 
+             */
+             self.log("_getNewSnapshotUrl -> GetOwl()");
+             Homey.app.GetOwl(self.getData().id)
+            .then(response => {
+                if (!response) {
+                    reject('_getNewSnapshotUrl() -> GetOwl() ->', 'failed get url from new snapshot');
+                }
+                let oldURL = response.thumbnail;
+                self.log('old URL: ' + oldURL);
 
-            //self.device.sleep(2500).then(sleep => {
+                self.log("_getNewSnapshotUrl -> CaptureOwl_snap()");
+                Homey.app.CaptureOwl_snap(self.getData().id)
+                .then(() => {
+                    self._getOwlSequential(0, self.getData().id, oldURL)
+                        .then(response => {
+                            resolve(response.thumbnail);
+                        })
+                        .catch(error => reject(error));
+                    })
+                    //}).catch(error => reject(error));
+                .catch(error => reject('_getNewSnapshotUrl() -> CaptureOwl_snap -> failed create new snapshot -> ' + error));
+            })
+            .catch(error => reject(error));
 
-                Homey.app.GetOwl(self.getData().id).then(response => {
-                    if (!response) {
-                        reject('_getNewSnapshotUrl() -> GetOwl ->', 'failed get url from new snapshot');
-                    }
-                    resolve(response.thumbnail);
-                }).catch(error => reject(error));
+            /**
+             * 1-try retrival of camera image with fixed wait time (3 sec)
+             * 1) Call the Blink API to generate a snapshot
+             * 2) Wait 2sec for generation
+             * 3) Read the snapshot URL 
+             */
+            //  self.log("_getNewSnapshotUrl -> Capture_snap()");
+            //  Homey.app.CaptureOwl_snap(self.getData().id)
+            //  .then(() => {
+            //      self.log("_getNewSnapshotUrl -> GetOwl()");
+            //      self.device.sleep(3000).then(sleep => {
+            //          Homey.app.GetOwl(self.getData().id).then(response => {
+            //              if (!response) {
+            //                  reject('_getNewSnapshotUrl() -> GetOwl ->', 'failed get url from new snapshot');
+            //              }
+            //              self.log("_getNewSnapshotUrl -> resolve(response.thumbnail)");
+            //              resolve(response.thumbnail);
+            //          }).catch(error => reject(error));
+            //      }).catch(error => reject(error));
+            //  })
+            //  .catch(error => reject('_getNewSnapshotUrl() -> CaptureOwl_snap -> failed create new snapshot -> ' + error));
 
+            /**
+             * Original version
+             */
+            //  Homey.app.CaptureOwl_snap(self.getData().id)
+            //  self.device.sleep(2500).then(sleep => {
+                // Homey.app.GetOwl(self.getData().id).then(response => {
+                //     if (!response) {
+                //         reject('_getNewSnapshotUrl() -> GetOwl ->', 'failed get url from new snapshot');
+                //     }
+                //     resolve(response.thumbnail);
+                // }).catch(error => reject(error));
             //}).catch(error => reject(error));
+
         });
+    }
+
+    /**
+     * Method that reads the snapshot URL comparing the last one up to 10 times
+     * @private
+     */
+     _getOwlSequential(count, CameraID, compareURL) {
+        const self = this;
+        return new Promise(function (resolve, reject) {
+            if (count == undefined) {count = 0}
+            count++;
+            self.log('_getOwlSequential - Step ['+count+'] -> GetOwl()');
+            Homey.app.GetOwl(self.getData().id)
+                .then(response => {
+                    if (!response) {
+                        reject('_getOwlSequential() -> GetOwl ->', 'failed get url from new snapshot');
+                    }
+                    self.log("_getOwlSequential -> resolve(response.thumbnail)");
+                    let newURL = response.thumbnail;
+                    self.log('new URL: '+newURL); 
+                    if (newURL != compareURL || count == 10 ){
+                        self.log('Step [' + count + '] - newURL found! exit...');
+                        resolve(response);
+                    }
+                    else {
+                        self.log('Step [' + count + '] - same URL found! continue after '+'1'+' seconds');
+                        self.device.sleep( 1000 ).then(sleep => {
+                            self._getOwlSequential(count, CameraID, compareURL)
+                            .then(response => resolve(response) )
+                            .catch(error => reject(error));
+                        }).catch(error => reject(error));
+                    }
+                })
+                .catch(error => reject(error));
+        }); 
     }
 
     /**
@@ -277,8 +385,13 @@ class BlinkCamera extends Homey.Device {
                     self.log('_registerSnapshotImage() -> setStream ->', "https://rest-" + regionCode + ".immedia-semi.com" + url + ".jpg");
 
                     res.body.pipe(stream);
-
-                }).catch(error => reject(error));
+                })
+                .catch((error) => {
+                    self.log("_registerSnapshotImage Error calling _getNewSnapshotUrl: "+error);
+                    self.log("Close the stream to prevent the app waiting for timeout.");
+                    stream.end();
+                    //throw new Error('Camera is busy');
+                });
             });
             // Register and set camera iamge
             _snapshotImage.register()

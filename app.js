@@ -456,9 +456,10 @@ class BlinkApp extends Homey.App {
                 const payload = {
 
                 }
-
+                //self.log("call POST /thumbnail");
                 let endpoint = "/network/" + networkID + "/camera/" + Camera + "/thumbnail";
                 Homey.app.api._post(endpoint, payload).then(response => {
+                    //self.log(response);
                     const result = JSON.parse(response);
                     if (result == null) {
                         reject("Error during deserialization: " + response);

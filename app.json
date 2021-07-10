@@ -10,6 +10,7 @@
     "en": "Blink Camera's",
     "nl": "Blink Camera's"
   },
+  "brandColor": "#3FA0D6",
   "tags": {
     "en": [
       "Blink",
@@ -70,6 +71,7 @@
         "en": "Last video date",
         "nl": "Laatste video datum"
       },
+      "uiComponent": null,
       "getable": true,
       "setable": false
     },
