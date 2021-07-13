@@ -117,7 +117,6 @@ class BlinkCamera extends Homey.Device {
                     }
 
                     self.log('onFlowCardCapture_snap() -> setStream ->', "https://rest-" + regionCode + ".immedia-semi.com" + url + ".jpg");
-                    self.log(headers);
 
                     res.body.pipe(stream);
                 })
