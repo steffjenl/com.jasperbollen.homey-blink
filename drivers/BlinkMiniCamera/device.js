@@ -35,31 +35,31 @@ class BlinkCamera extends Homey.Device {
         if (value) {
             this.log('Motion Enabled');
             this.setCapabilityValue("onoff", true);
-            //Homey.app.EnableMotion(this.getData().id).catch(error => this.error(error));
+            Homey.app.EnableMotionOwl(this.getData().id).catch(error => this.error(error));
         } else {
             this.log('Motion Disabled');
             this.setCapabilityValue("onoff", false);
-            //Homey.app.DisableMotion(this.getData().id).catch(error => this.error(error));
+            Homey.app.DisableMotionOwl(this.getData().id).catch(error => this.error(error));
         }
     }
 
     onFlowCardIndoorCamera_on() {
         this.setCapabilityValue("onoff", true);
-        //Homey.app.EnableMotion(this.getData().id).catch(error => this.error(error));
+        Homey.app.EnableMotionOwl(this.getData().id).catch(error => this.error(error));
 
         return true;
     }
 
     onFlowCardIndoorCamera_off() {
         this.setCapabilityValue("onoff", false);
-        //Homey.app.DisableMotion(this.getData().id).catch(error => this.error(error));
+        Homey.app.DisableMotionOwl(this.getData().id).catch(error => this.error(error));
 
         return true;
     }
 
     onFlowCardCapture_vid() {
-        this.log("Capturing Video");
-        Homey.app.Capture_vid(this.getData().id).catch(error => this.error(error));
+        this.log("onFlowCardCapture_vid() -> Capturing Video");
+        Homey.app.CaptureOwl_vid(this.getData().id).catch(error => this.error(error));
         return true;
     }
 
@@ -202,17 +202,21 @@ class BlinkCamera extends Homey.Device {
         if (Event_date > Current_date) {
             Homey.app.log("new motion detected on camera: " + this.getData().id);
             this.setCapabilityValue("last_vid", Event_date).catch(this.error);
-            // this.setCapabilityValue('alarm_motion', true).catch(this.error);
-            // await this.onFlowCardCapture_snap();
-            // this.startMotionTrigger();
-            await this.onFlowCardCapture_snap()
-                .then(() => {
+            /** 
+             * No snapshot capturing on motion event!
+             * The camera is recording and a new snapshot can't be captured in time.
+             * Trigger motion event without capture to get the flow directly started.
+             * Capturing should be done individually in the flow using the "capture snapshot"
+             * flow action.
+            */
+            //await this.onFlowCardCapture_snap()
+            //    .then(() => {
                     this.setCapabilityValue('alarm_motion', true).catch(this.error);
                     this.startMotionTrigger();
-                })
-                .catch((error) => {
-                    self.log('MotionDetected() -> onFlowCardCapture_snap error: '+error);
-                });
+            //    })
+            //    .catch((error) => {
+            //        self.log('MotionDetected() -> onFlowCardCapture_snap error: '+error);
+            //    });
         } else {
             this.setCapabilityValue('alarm_motion', false).catch(this.error);
         }
