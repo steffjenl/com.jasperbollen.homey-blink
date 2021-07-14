@@ -138,7 +138,8 @@ class BlinkApp extends Homey.App {
                 if (result == null) {
                     reject("Error during deserialization: " + response);
                 } else {
-                    var networkID = result.networks[0];
+                    //var networkID = result.networks[0];
+                    var networkID = result.networks;
                     resolve(networkID);
                     Homey.ManagerSettings.set('network', networkID);
                 }
@@ -146,6 +147,28 @@ class BlinkApp extends Homey.App {
         });
     }
 
+    //Get info about sync network
+    async GetCameraNetwork() {
+        return new Promise(function (resolve, reject) {
+
+            const payload = {
+            }
+
+            let endpoint = "/networks";
+            Homey.app.api._get(endpoint, payload).then(response => {
+                const result = JSON.parse(response);
+                if (result == null) {
+                    reject("Error during deserialization: " + response);
+                } else {
+                    //var networkID = result.networks[0];
+                    var networkID = result.networks;
+                    resolve(networkID);
+                    Homey.ManagerSettings.set('network', networkID);
+                }
+            }).catch(error => reject(error));
+        });
+    }
+    
     //Get latest video
     LatestVideo() {
         // var accountId = this.GetAccountId().catch(error => this.error(error));
@@ -328,19 +351,20 @@ class BlinkApp extends Homey.App {
     EnableMotion(cameraID) {
         const self = this;
         return new Promise(function (resolve, reject) {
-            const networks = self.GetNetworks().then(networks => {
-                const networkID = networks.id;
+            self.GetCamera(cameraID).then(camera => {
+                const networkID = camera.network_id;
 
                 const payload = {
 
                 }
-
+                self.log("EnableMotion() => CameraID "+cameraID+" NetworkID "+networkID);
                 let endpoint = "/network/" + networkID + "/camera/" + cameraID + "/enable";
                 Homey.app.api._post(endpoint, payload).then(response => {
                     const result = JSON.parse(response);
                     if (result == null) {
                         reject("Error during deserialization: " + response);
                     } else {
+                        self.log('Motion ensabled for camera '+cameraID);
                         resolve();
                     }
                 }).catch(error => reject(error));
@@ -352,19 +376,20 @@ class BlinkApp extends Homey.App {
     DisableMotion(cameraID) {
         const self = this;
         return new Promise(function (resolve, reject) {
-            const networks = self.GetNetworks().then(networks => {
-                const networkID = networks.id;
+            self.GetCamera(cameraID).then(camera => {
+                const networkID = camera.network_id;
 
                 const payload = {
 
                 }
-
+                self.log("DisableMotion() => CameraID "+cameraID+" NetworkID "+networkID);
                 let endpoint = "/network/" + networkID + "/camera/" + cameraID + "/disable";
                 Homey.app.api._post(endpoint, payload).then(response => {
                     const result = JSON.parse(response);
                     if (result == null) {
                         reject("Error during deserialization: " + response);
                     } else {
+                        self.log('Motion disabled for camera '+cameraID);
                         resolve();
                     }
                 }).catch(error => reject(error));
@@ -380,22 +405,22 @@ class BlinkApp extends Homey.App {
         const accountId = Homey.ManagerSettings.get('accountId');
         const self = this;
         return new Promise(function (resolve, reject) {
-            const networks = self.GetNetworks().then(networks => {
-                const networkID = networks.id;
+            self.GetOwl(cameraID).then(camera => {
+                const networkID = camera.network_id;
 
                 const payload = {
                     
                 }
+                self.log("EnableMotionOwl() => CameraID "+cameraID+" NetworkID "+networkID);
                 let endpoint = "/network/" + networkID + "/camera/" + cameraID + "/enable";
                 //let endpoint = "/network/" + networkID + "/camera/" + cameraID + "/arm";
-                
-                self.log("EnableMotionOwl() - endpoint: "+endpoint);
 
                 Homey.app.api._post(endpoint, payload).then(response => {
                     const result = JSON.parse(response);
                     if (result == null) {
                         reject("Error during deserialization: " + response);
                     } else {
+                        self.log('Motion enabled for camera '+cameraID);
                         resolve();
                     }
                 }).catch(error => reject(error));
@@ -411,13 +436,14 @@ class BlinkApp extends Homey.App {
         const accountId = Homey.ManagerSettings.get('accountId');
         const self = this;
         return new Promise(function (resolve, reject) {
-            const networks = self.GetNetworks().then(networks => {
-                const networkID = networks.id;
+            self.GetOwl(cameraID).then(camera => {
+                const networkID = camera.network_id;
 
                 const payload = {
                    
                 }
 
+                self.log("DisableMotionOwl() => CameraID "+cameraID+" NetworkID "+networkID);
                 let endpoint = "/network/" + networkID + "/camera/" + cameraID + "/disable";
                 //let endpoint = "/api/v1/accounts/" + accountId + "/network/" + networkID + "/owls/" + cameraID + "/config";
                 
@@ -426,6 +452,7 @@ class BlinkApp extends Homey.App {
                     if (result == null) {
                         reject("Error during deserialization: " + response);
                     } else {
+                        self.log('Motion disabled for camera '+cameraID);
                         resolve();
                     }
                 }).catch(error => reject(error));
@@ -437,23 +464,25 @@ class BlinkApp extends Homey.App {
     Disarm() {
         const self = this;
         return new Promise(function (resolve, reject) {
-            const networks = self.GetNetworks().then(networks => {
-                const networkID = networks.id;
+            self.GetNetworks().then(networks => {
+                networks.forEach( network =>{
+                    const networkID = network.id;
+                    const payload = {
 
-                const payload = {
-
-                }
-
-                let endpoint = "/network/" + networkID + "/disarm";
-                Homey.app.api._post(endpoint, payload).then(response => {
-                    const result = JSON.parse(response);
-                    if (result == null) {
-                        reject("Error during deserialization: " + response);
-                    } else {
-                        self.log('Network disarmed');
-                        resolve();
                     }
-                }).catch(error => reject(error));
+
+                    self.log('Disarm Network ' + networkID);
+                    let endpoint = "/network/" + networkID + "/disarm";
+                    Homey.app.api._post(endpoint, payload).then(response => {
+                        const result = JSON.parse(response);
+                        if (result == null) {
+                            reject("Error during deserialization: " + response);
+                        } else {
+                            self.log('Network '+networkID+' disarmed');
+                            resolve();
+                        }
+                    }).catch(error => reject(error));
+                });
             }).catch(error => reject(error));
         });
     }
@@ -462,44 +491,47 @@ class BlinkApp extends Homey.App {
     Arm() {
         const self = this;
         return new Promise(function (resolve, reject) {
-            const networks = self.GetNetworks().then(networks => {
-                const networkID = networks.id;
+           self.GetNetworks().then(networks => {
+                networks.forEach( network =>{
+                    const networkID = network.id;
+                    const payload = {
 
-                const payload = {
-
-                }
-
-                let endpoint = "/network/" + networkID + "/arm";
-                Homey.app.api._post(endpoint, payload).then(response => {
-                    const result = JSON.parse(response);
-                    if (result == null) {
-                        reject("Error during deserialization: " + response);
-                    } else {
-                        self.log('Network armed');
-                        resolve();
                     }
-                }).catch(error => reject(error));
+
+                    self.log('Arm Network ' + networkID);
+                    let endpoint = "/network/" + networkID + "/arm";
+                    Homey.app.api._post(endpoint, payload).then(response => {
+                        const result = JSON.parse(response);
+                        if (result == null) {
+                            reject("Error during deserialization: " + response);
+                        } else {
+                            self.log('Network '+networkID+' armed');
+                            resolve();
+                        }
+                    }).catch(error => reject(error));
+                });
             }).catch(error => reject(error));
         });
     }
 
     //Capture a video
-    Capture_vid(Camera) {
+    Capture_vid(cameraID) {
         const self = this;
         return new Promise(function (resolve, reject) {
-            const networks = self.GetNetworks().then(networks => {
-                const networkID = networks.id;
+            self.GetCamera(cameraID).then(camera => {
+                const networkID = camera.network_id;
 
                 const payload = {
 
                 }
-
-                let endpoint = "/network/" + networkID + "/camera/" + Camera + "/clip";
+                self.log("Capture_vid() => CameraID "+cameraID+" NetworkID "+networkID);
+                let endpoint = "/network/" + networkID + "/camera/" + cameraID + "/clip";
                 Homey.app.api._post(endpoint, payload).then(response => {
                     const result = JSON.parse(response);
                     if (result == null) {
                         reject("Error during deserialization: " + response);
                     } else {
+                        self.log('Created video for camera ' + cameraID);
                         resolve();
                     }
                 }).catch(error => reject(error));
@@ -508,22 +540,23 @@ class BlinkApp extends Homey.App {
      }
 
     //Capture a video (BlinkMini)
-    CaptureOwl_vid(Camera) {
+    CaptureOwl_vid(cameraID) {
         const accountId = Homey.ManagerSettings.get('accountId');
         const self = this;
         return new Promise(function (resolve, reject) {
-            const networks = self.GetNetworks().then(networks => {
-                const networkID = networks.id;
-
+            self.GetOwl(cameraID).then(camera => {
+                const networkID = camera.network_id;
                 const payload = {
 
                 }
-                let endpoint = "/api/v1/accounts/" + accountId +"/networks/" + networkID + "/owls/" + Camera + "/clip";
+                self.log("CaptureOwl_vid() => CameraID "+cameraID+" NetworkID "+networkID);
+                let endpoint = "/api/v1/accounts/" + accountId +"/networks/" + networkID + "/owls/" + cameraID + "/clip";
                 Homey.app.api._post(endpoint, payload).then(response => {
                     const result = JSON.parse(response);
                     if (result == null) {
                         reject("Error during deserialization: " + response);
                     } else {
+                        self.log('Created video for camera ' + cameraID);
                         resolve();
                     }
                 }).catch(error => reject(error));
@@ -532,23 +565,23 @@ class BlinkApp extends Homey.App {
      }
 
     //Capture a snapshot
-    Capture_snap(Camera) {
+    Capture_snap(cameraID) {
         const self = this;
         return new Promise(function (resolve, reject) {
-            const networks = self.GetNetworks().then(networks => {
-                const networkID = networks.id;
-
+            self.GetCamera(cameraID).then(camera => {
+                const networkID = camera.network_id;
                 const payload = {
 
                 }
-                let endpoint = "/network/" + networkID + "/camera/" + Camera + "/thumbnail";
+                self.log("Capture_snap() => CameraID "+cameraID+" NetworkID "+networkID);
+                let endpoint = "/network/" + networkID + "/camera/" + cameraID + "/thumbnail";
                 Homey.app.api._post(endpoint, payload).then(response => {
                     //self.log(response);
                     const result = JSON.parse(response);
                     if (result == null) {
                         reject("Error during deserialization: " + response);
                     } else {
-                        self.log('Created snapshot for camera ' + Camera);
+                        self.log('Created snapshot for camera ' + cameraID);
                         resolve();
                     }
                 }).catch(error => reject(error));
@@ -557,24 +590,23 @@ class BlinkApp extends Homey.App {
     }
 
     //Capture a snapshot (BlinkMini)
-    CaptureOwl_snap(Camera) {
+    CaptureOwl_snap(cameraID) {
         const accountId = Homey.ManagerSettings.get('accountId');
         const self = this;
         return new Promise(function (resolve, reject) {
-            const networks = self.GetNetworks().then(networks => {
-                const networkID = networks.id;
-
+            self.GetOwl(cameraID).then(camera => {
+                const networkID = camera.network_id;
                 const payload = {
 
                 }
-
-                let endpoint = "/api/v1/accounts/" + accountId +"/networks/" + networkID + "/owls/" + Camera + "/thumbnail";
+                self.log("CaptureOwl_snap() => CameraID "+cameraID+" NetworkID "+networkID);
+                let endpoint = "/api/v1/accounts/" + accountId +"/networks/" + networkID + "/owls/" + cameraID + "/thumbnail";
                 Homey.app.api._post(endpoint, payload).then(response => {
                     const result = JSON.parse(response);
                     if (result == null) {
                         reject("Error during deserialization: " + response);
                     } else {
-                        self.log('Created snapshot for camera ' + Camera);
+                        self.log('Created snapshot for camera ' + cameraID);
                         resolve();
                     }
                 }).catch(error => reject(error));
@@ -637,7 +669,7 @@ class BlinkApp extends Homey.App {
     MotionLoop() {
         setInterval(() => {
             this.CheckMotion().catch(error => this.error(error));
-            //console.log("Motion check has ran");
+            //this.log("Motion check has ran");
         }, 5000);
     }
 
