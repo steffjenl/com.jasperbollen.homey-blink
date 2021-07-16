@@ -10,6 +10,7 @@
     "en": "Blink Camera's",
     "nl": "Blink Camera's"
   },
+  "brandColor": "#3FA0D6",
   "tags": {
     "en": [
       "Blink",
@@ -44,6 +45,10 @@
       {
         "name": "Jasper Bollen",
         "email": "jasperbollen@gmail.com"
+      },
+      {
+        "name": "Ronny Winkler",
+        "email": "ronny.winkler@web.de"
       }
     ]
   },
@@ -70,6 +75,7 @@
         "en": "Last video date",
         "nl": "Laatste video datum"
       },
+      "uiComponent": null,
       "getable": true,
       "setable": false
     },
@@ -219,6 +225,39 @@
             "filter": "driver_id=BlinkIndoorCamera"
           }
         ]
+      },
+      {
+        "id": "snapshot_created",
+        "title": {
+          "en": "A snapshot was created",
+          "nl": "Er is een snapshot gemaakt"
+        },
+        "tokens": [
+          {
+            "name": "image",
+            "title": {
+              "en": "image"
+            },
+            "type": "image"
+          },
+          {
+            "name": "device",
+            "title": {
+              "en": "device"
+            },
+            "example": {
+              "en": "Camera"
+            },
+            "type": "string"
+          }
+        ],
+        "args": [
+          {
+            "name": "IndoorCamera",
+            "type": "device",
+            "filter": "driver_id=BlinkMiniCamera"
+          }
+        ]
       }
     ],
     "actions": [
@@ -265,6 +304,20 @@
         ]
       },
       {
+        "id": "Capture_video",
+        "title": {
+          "en": "Capture video",
+          "nl": "Video maken"
+        },
+        "args": [
+          {
+            "name": "Capture_vid",
+            "type": "device",
+            "filter": "driver_id=BlinkMiniCamera"
+          }
+        ]
+      },
+      {
         "id": "Capture_snapshot",
         "title": {
           "en": "Capture snapshot",
@@ -275,6 +328,20 @@
             "name": "Capture_snap",
             "type": "device",
             "filter": "driver_id=BlinkIndoorCamera"
+          }
+        ]
+      },
+      {
+        "id": "Capture_snapshot",
+        "title": {
+          "en": "Capture snapshot",
+          "nl": "Snapshot maken"
+        },
+        "args": [
+          {
+            "name": "Capture_snap",
+            "type": "device",
+            "filter": "driver_id=BlinkMiniCamera"
           }
         ]
       },

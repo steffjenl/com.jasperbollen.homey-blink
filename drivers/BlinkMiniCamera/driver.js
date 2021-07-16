@@ -12,6 +12,14 @@ class BlinkDriver extends Homey.Driver {
             .register()
             .registerRunListener(args => args.CaptureOwl_snap.onFlowCardCapture_snap().catch(error => this.error(error)));
 
+        new Homey.FlowCardAction('Capture_video')
+            .register()
+            .registerRunListener(args => args.Capture_vid.onFlowCardCapture_vid());
+
+        new Homey.FlowCardAction('Capture_snapshot')
+            .register()
+            .registerRunListener(args => args.Capture_snap.onFlowCardCapture_snap().catch(error => this.error(error)));
+
         let ArmNetwork = new Homey.FlowCardAction('arm_network');
         ArmNetwork
             .register()
